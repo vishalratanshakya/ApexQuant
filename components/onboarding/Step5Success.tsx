@@ -17,10 +17,10 @@ export default function Step5Success() {
       </div>
       
       <h2 className="text-3xl font-black font-display text-text mb-3 tracking-tight">
-        You're All Set!
+        You&apos;re All Set!
       </h2>
       <p className="text-slate-500 font-medium text-sm max-w-sm mb-10 mx-auto">
-        Your account is ready. It's time to build, backtest, and deploy your first algorithmic trading strategy without writing a single line of code.
+        Your account is ready. It&apos;s time to build, backtest, and deploy your first algorithmic trading strategy without writing a single line of code.
       </p>
 
       <button

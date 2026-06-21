@@ -146,7 +146,7 @@ export default function TestimonialsGrid() {
               </div>
 
               <p className="text-slate-600 text-sm leading-relaxed mb-6 flex-1">
-                "{testimonial.quote}"
+                &quot;{testimonial.quote}&quot;
               </p>
 
               <div className="pt-4 border-t border-slate-100 flex items-center gap-2">

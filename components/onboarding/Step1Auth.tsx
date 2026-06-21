@@ -60,7 +60,7 @@ export default function Step1Auth({ onNext }: Props) {
           Welcome to ApexQuant
         </h2>
         <p className="text-slate-500 font-medium">
-          Let's build your first strategy in under <span className="text-primary font-bold">5 minutes</span>
+          Let&apos;s build your first strategy in under <span className="text-primary font-bold">5 minutes</span>
         </p>
       </div>
 

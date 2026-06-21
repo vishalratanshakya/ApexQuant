@@ -46,7 +46,7 @@ export default function CRMCommunicationsPage() {
             <div className="flex gap-4 max-w-[80%]">
               <div className="w-8 h-8 rounded-full bg-slate-200 flex items-center justify-center text-slate-500 text-xs font-bold">U</div>
               <div className="bg-white border border-slate-200 p-3 rounded-2xl rounded-tl-sm text-sm text-text shadow-sm">
-                Hi, I am trying to run a backtest but I get an error saying "Insufficient Data". What should I do?
+                Hi, I am trying to run a backtest but I get an error saying &quot;Insufficient Data&quot;. What should I do?
               </div>
             </div>
             
