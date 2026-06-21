@@ -20,7 +20,9 @@ export interface StrategyData {
   name: string;
   instrument: string;
   timeframe: string;
-  orderType: string;
+  period?: string;
+  positionType?: string;
+  orderType?: string;
   status: 'Draft' | 'Backtesting' | 'Live' | 'Paused';
   conditions: any[];
   stopLoss?: number;
