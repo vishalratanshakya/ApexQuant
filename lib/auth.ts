@@ -8,7 +8,8 @@ import {
   UserCredential,
   User,
 } from 'firebase/auth';
-import { auth } from './firebase';
+import { doc, setDoc, getDoc, serverTimestamp } from 'firebase/firestore';
+import { auth, db } from './firebase';
 
 const googleProvider = new GoogleAuthProvider();
 googleProvider.setCustomParameters({ prompt: 'select_account' });
@@ -66,6 +67,27 @@ function notifyMockListeners(user: User | null) {
   mockListeners.forEach(cb => cb(user));
 }
 
+// Ensure a user document exists in Firestore
+async function ensureUserDocument(user: User) {
+  if (!user || isMock) return;
+  const userRef = doc(db, 'users', user.uid);
+  try {
+    const docSnap = await getDoc(userRef);
+    if (!docSnap.exists()) {
+      await setDoc(userRef, {
+        userId: user.uid,
+        email: user.email,
+        displayName: user.displayName || user.email?.split('@')[0] || 'User',
+        createdAt: serverTimestamp(),
+        credits: 1000,
+        role: 'user'
+      });
+    }
+  } catch (error) {
+    console.error("Error creating user document:", error);
+  }
+}
+
 export async function signInWithGoogle(): Promise<UserCredential> {
   if (isMock) {
     await new Promise(resolve => setTimeout(resolve, 800));
@@ -77,7 +99,9 @@ export async function signInWithGoogle(): Promise<UserCredential> {
     notifyMockListeners(mockUser);
     return { user: mockUser } as UserCredential;
   }
-  return signInWithPopup(auth, googleProvider);
+  const result = await signInWithPopup(auth, googleProvider);
+  await ensureUserDocument(result.user);
+  return result;
 }
 
 export async function signInWithEmail(
@@ -129,7 +153,9 @@ export async function signUpWithEmail(
     notifyMockListeners(mockUser);
     return { user: mockUser } as UserCredential;
   }
-  return createUserWithEmailAndPassword(auth, email, password);
+  const result = await createUserWithEmailAndPassword(auth, email, password);
+  await ensureUserDocument(result.user);
+  return result;
 }
 
 export async function sendResetEmail(email: string): Promise<void> {

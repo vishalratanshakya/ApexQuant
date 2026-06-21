@@ -1,7 +1,9 @@
 'use client';
 
-import { useAuth } from '@/providers/AuthProvider';
+import { useAuth } from '@/hooks/useAuth';
 import { ArrowUpRight, TrendingUp, DollarSign, Activity, Settings } from 'lucide-react';
+import { useEffect, useState } from 'react';
+import { getStrategies, getBacktests, StrategyData, BacktestData } from '@/lib/db';
 import dynamic from 'next/dynamic';
 import Heatmap from '@/components/dashboard/Heatmap';
 
@@ -25,6 +27,15 @@ const mockChartData = [
 
 export default function DashboardPage() {
   const { user } = useAuth();
+  const [strategies, setStrategies] = useState<StrategyData[]>([]);
+  const [backtests, setBacktests] = useState<BacktestData[]>([]);
+
+  useEffect(() => {
+    if (user) {
+      getStrategies(user.uid).then(setStrategies);
+      getBacktests(user.uid).then(setBacktests);
+    }
+  }, [user]);
 
   return (
     <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
@@ -41,8 +52,8 @@ export default function DashboardPage() {
         {[
           { label: "Today's P&L", value: '+₹12,450', change: '+0.8% (Today)', icon: TrendingUp, gradient: 'bg-gradient-to-br from-emerald-400 to-emerald-600' },
           { label: 'Total Returns', value: '₹3,45,000', change: '+24.5% (All-time)', icon: DollarSign, gradient: 'bg-gradient-to-br from-blue-500 to-blue-700' },
-          { label: 'Active Strategies', value: '4', change: 'Running Live', icon: Activity, gradient: 'bg-gradient-to-br from-purple-500 to-purple-700' },
-          { label: 'Available Credits', value: '850', change: 'Backtests left', icon: ArrowUpRight, gradient: 'bg-gradient-to-br from-orange-400 to-orange-600' },
+          { label: 'Built Strategies', value: strategies.length.toString(), change: 'Saved Drafts', icon: Activity, gradient: 'bg-gradient-to-br from-purple-500 to-purple-700' },
+          { label: 'Backtests Run', value: backtests.length.toString(), change: 'Total Runs', icon: ArrowUpRight, gradient: 'bg-gradient-to-br from-orange-400 to-orange-600' },
           { label: 'Total Deployed', value: '12', change: 'Lifetime', icon: Settings, gradient: 'bg-gradient-to-br from-indigo-500 to-indigo-700' },
         ].map((stat, i) => (
           <div key={i} className={`rounded-xl p-5 shadow-sm hover:shadow-lg transition-all text-white ${stat.gradient}`}>
@@ -103,38 +114,34 @@ export default function DashboardPage() {
             <div className="p-0">
               <table className="w-full text-left">
                 <tbody className="divide-y divide-slate-100">
-                  {[
-                    { name: 'NIFTY Breakout', instrument: 'NIFTY', status: 'Running', pnl: '+4.25%' },
-                    { name: 'BANKNIFTY Scalp', instrument: 'BNF', status: 'Running', pnl: '+1.22%' },
-                    { name: 'RELIANCE Swing', instrument: 'RELIANCE', status: 'Paused', pnl: '-0.15%' },
-                  ].map((s, i) => (
+                  {strategies.slice(0, 5).map((s, i) => (
                     <tr key={i} className="hover:bg-slate-50 transition-colors group">
                       <td className="px-5 py-4">
                         <p className="text-sm font-bold text-text mb-0.5">{s.name}</p>
                         <p className="text-[10px] text-slate-500 uppercase font-semibold">{s.instrument}</p>
                       </td>
                       <td className="px-5 py-4">
-                        <span className={`inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider ${
-                          s.status === 'Running' ? 'bg-success/10 text-success' : 'bg-slate-100 text-slate-500'
-                        }`}>
-                          {s.status === 'Running' && <span className="w-1.5 h-1.5 rounded-full bg-success animate-pulse" />}
+                        <span className={`inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-slate-100 text-slate-500`}>
                           {s.status}
                         </span>
                       </td>
-                      <td className={`px-5 py-4 text-sm font-bold text-right ${s.pnl.includes('+') ? 'text-success' : 'text-loss'}`}>
-                        {s.pnl}
+                      <td className={`px-5 py-4 text-sm font-bold text-right text-slate-400`}>
+                        -
                       </td>
                       <td className="px-5 py-4 text-right opacity-0 group-hover:opacity-100 transition-opacity">
                         <div className="flex items-center justify-end gap-3">
-                          <button className="text-xs font-semibold text-slate-500 hover:text-primary">View</button>
                           <button className="text-xs font-semibold text-slate-500 hover:text-primary">Edit</button>
-                          <button className="text-xs font-semibold text-slate-500 hover:text-primary">
-                            {s.status === 'Running' ? 'Stop' : 'Restart'}
-                          </button>
                         </div>
                       </td>
                     </tr>
                   ))}
+                  {strategies.length === 0 && (
+                    <tr>
+                      <td colSpan={4} className="px-5 py-8 text-center text-sm text-slate-500">
+                        You have no strategies. Head to the Builder to create one!
+                      </td>
+                    </tr>
+                  )}
                 </tbody>
               </table>
             </div>

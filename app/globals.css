@@ -184,6 +184,7 @@ body {
 
 .ticker-inner {
   display: flex;
+  width: max-content;
   white-space: nowrap;
   animation: ticker 40s linear infinite;
 }

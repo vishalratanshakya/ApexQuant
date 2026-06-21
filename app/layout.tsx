@@ -2,7 +2,6 @@ import type { Metadata } from 'next';
 import { Inter, Outfit } from 'next/font/google';
 import './globals.css';
 import { AuthProvider } from '@/providers/AuthProvider';
-import CustomCursor from '@/components/ui/CustomCursor';
 import { Toaster } from 'react-hot-toast';
 
 const inter = Inter({
@@ -73,7 +72,6 @@ export default function RootLayout({
               },
             }} 
           />
-          <CustomCursor />
         </AuthProvider>
       </body>
     </html>

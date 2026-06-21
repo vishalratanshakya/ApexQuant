@@ -12,6 +12,7 @@ export default function CustomCursor() {
     cursor.className = `fixed w-8 h-8 border-2 border-purple-500 rounded-full pointer-events-none z-[9999] -translate-x-1/2 -translate-y-1/2 mix-blend-difference transition-transform duration-150 hidden md:block`;
     
     document.body.appendChild(cursor);
+    document.body.classList.add('hide-default-cursor');
 
     const onMouseMove = (e: MouseEvent) => {
       cursor.style.left = `${e.clientX}px`;
@@ -34,6 +35,7 @@ export default function CustomCursor() {
       document.removeEventListener('mousemove', onMouseMove);
       document.removeEventListener('mousedown', onMouseDown);
       document.removeEventListener('mouseup', onMouseUp);
+      document.body.classList.remove('hide-default-cursor');
       cursor.remove();
     };
   }, []);

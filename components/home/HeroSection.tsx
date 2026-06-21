@@ -8,6 +8,7 @@ import dynamic from 'next/dynamic';
 const MiniChart = dynamic(() => import('./MiniChart'), { ssr: false });
 
 import { useState, useEffect } from 'react';
+import { useAuth } from '@/hooks/useAuth';
 
 const floatingStats = [
   { icon: Zap, label: 'Avg Backtest Speed', value: '< 2 sec', color: 'text-primary' },
@@ -35,7 +36,7 @@ const itemVariants = {
   visible: { opacity: 1, y: 0, transition: { duration: 0.6, ease: 'easeOut' } },
 };
 
-export default function HeroSection() {
+function TickerTape() {
   const [tickerItems, setTickerItems] = useState(initialTickerItems);
 
   useEffect(() => {
@@ -51,6 +52,29 @@ export default function HeroSection() {
     }, 1500);
     return () => clearInterval(interval);
   }, []);
+
+  return (
+    <div className="ticker-wrap pt-20 border-b border-border bg-white/80 backdrop-blur-md py-2">
+      <div className="ticker-inner">
+        {[...tickerItems, ...tickerItems, ...tickerItems, ...tickerItems].map((item, i) => (
+          <span key={i} className="inline-flex items-center gap-2 px-6 text-xs w-fit">
+            <span className="font-semibold text-slate-500 min-w-[85px]">{item.symbol}</span>
+            <span className="text-text font-medium w-[80px] tabular-nums text-right">
+              {item.price.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+            </span>
+            <span className={`px-1.5 py-0.5 rounded-sm w-[65px] text-center tabular-nums ${item.up ? 'bg-success/10 text-success' : 'bg-loss/10 text-loss'}`}>
+              {item.up ? '+' : ''}{item.change.toFixed(2)}%
+            </span>
+            <span className="text-slate-350 ml-2">|</span>
+          </span>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+export default function HeroSection() {
+  const { user } = useAuth();
 
   return (
     <section className="relative min-h-screen flex flex-col overflow-hidden bg-surface-2">
@@ -78,21 +102,7 @@ export default function HeroSection() {
         />
       ))}
 
-      {/* ── Ticker tape ── */}
-      <div className="ticker-wrap pt-20 border-b border-border bg-white/80 backdrop-blur-md py-2">
-        <div className="ticker-inner">
-          {[...tickerItems, ...tickerItems].map((item, i) => (
-            <span key={i} className="inline-flex items-center gap-2 px-6 text-xs">
-              <span className="font-semibold text-slate-500">{item.symbol}</span>
-              <span className="text-text font-medium">{item.price.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
-              <span className={`px-1.5 py-0.5 rounded-sm ${item.up ? 'bg-success/10 text-success' : 'bg-loss/10 text-loss'}`}>
-                {item.up ? '+' : ''}{item.change.toFixed(2)}%
-              </span>
-              <span className="text-slate-350 ml-2">|</span>
-            </span>
-          ))}
-        </div>
-      </div>
+      <TickerTape />
 
       {/* ── Main hero content ── */}
       <div className="relative z-10 flex-1 flex flex-col items-center justify-center px-4 sm:px-6 lg:px-8 pt-12 pb-8">
@@ -163,11 +173,11 @@ export default function HeroSection() {
               className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start"
             >
               <Link
-                href="/login"
+                href={user ? "/dashboard" : "/get-started"}
                 id="hero-start-btn"
                 className="flex items-center justify-center gap-2 btn-primary text-white font-semibold px-8 py-4 rounded-xl text-base"
               >
-                Start Building Free
+                {user ? "Go to Dashboard" : "Start Building Free"}
                 <ArrowRight className="w-5 h-5" />
               </Link>
               <button

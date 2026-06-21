@@ -4,15 +4,17 @@ import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Menu, X, TrendingUp, ChevronRight } from 'lucide-react';
+import { useAuth } from '@/hooks/useAuth';
 
 const navLinks = [
-  { href: '#features', label: 'Features' },
-  { href: '#pricing', label: 'Pricing' },
-  { href: '#testimonials', label: 'Testimonials' },
-  { href: '#benefits', label: 'Why ApexQuant' },
+  { href: '/features', label: 'Features' },
+  { href: '/pricing', label: 'Pricing' },
+  { href: '/testimonials', label: 'Testimonials' },
+  { href: '/why-apexquant', label: 'Why ApexQuant' },
 ];
 
 export default function Navbar() {
+  const { user } = useAuth();
   const [scrolled, setScrolled] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
 
@@ -65,19 +67,31 @@ export default function Navbar() {
 
             {/* Desktop CTA Buttons */}
             <div className="hidden md:flex items-center gap-3">
-              <Link
-                href="/login"
-                className="text-sm font-medium px-4 py-2 rounded-lg btn-secondary"
-              >
-                Login
-              </Link>
-              <Link
-                href="/login"
-                className="flex items-center gap-1.5 text-sm font-semibold text-white px-5 py-2.5 rounded-lg btn-primary"
-              >
-                Get Started
-                <ChevronRight className="w-4 h-4" />
-              </Link>
+              {!user ? (
+                <>
+                  <Link
+                    href="/login"
+                    className="text-sm font-medium px-4 py-2 rounded-lg btn-secondary"
+                  >
+                    Login
+                  </Link>
+                  <Link
+                    href="/get-started"
+                    className="flex items-center gap-1.5 text-sm font-semibold text-white px-5 py-2.5 rounded-lg btn-primary"
+                  >
+                    Get Started
+                    <ChevronRight className="w-4 h-4" />
+                  </Link>
+                </>
+              ) : (
+                <Link
+                  href="/dashboard"
+                  className="flex items-center gap-1.5 text-sm font-semibold text-white px-5 py-2.5 rounded-lg btn-primary"
+                >
+                  Dashboard
+                  <ChevronRight className="w-4 h-4" />
+                </Link>
+              )}
             </div>
 
             {/* Mobile Hamburger */}
@@ -116,20 +130,32 @@ export default function Navbar() {
                 </Link>
               ))}
               <div className="flex flex-col gap-3 pt-2">
-                <Link
-                  href="/login"
-                  onClick={() => setMobileOpen(false)}
-                  className="text-center text-sm font-medium py-3 rounded-lg btn-secondary"
-                >
-                  Login
-                </Link>
-                <Link
-                  href="/login"
-                  onClick={() => setMobileOpen(false)}
-                  className="text-center text-sm font-semibold text-white py-3 rounded-lg btn-primary"
-                >
-                  Get Started Free
-                </Link>
+                {!user ? (
+                  <>
+                    <Link
+                      href="/login"
+                      onClick={() => setMobileOpen(false)}
+                      className="text-center text-sm font-medium py-3 rounded-lg btn-secondary"
+                    >
+                      Login
+                    </Link>
+                    <Link
+                      href="/get-started"
+                      onClick={() => setMobileOpen(false)}
+                      className="text-center text-sm font-semibold text-white py-3 rounded-lg btn-primary"
+                    >
+                      Get Started Free
+                    </Link>
+                  </>
+                ) : (
+                  <Link
+                    href="/dashboard"
+                    onClick={() => setMobileOpen(false)}
+                    className="text-center text-sm font-semibold text-white py-3 rounded-lg btn-primary"
+                  >
+                    Dashboard
+                  </Link>
+                )}
               </div>
             </div>
           </motion.div>

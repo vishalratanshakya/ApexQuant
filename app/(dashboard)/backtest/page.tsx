@@ -1,10 +1,27 @@
 'use client';
 
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { Activity, Play, Plus, History } from 'lucide-react';
 import Link from 'next/link';
+import { useAuth } from '@/hooks/useAuth';
+import { getBacktests, BacktestData } from '@/lib/db';
 
 export default function BacktestPage() {
+  const { user } = useAuth();
+  const [backtests, setBacktests] = useState<BacktestData[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    if (user) {
+      getBacktests(user.uid).then(data => {
+        setBacktests(data);
+        setLoading(false);
+      });
+    } else {
+      setLoading(false);
+    }
+  }, [user]);
+
   return (
     <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500 pb-24">
       {/* Header section */}
@@ -30,8 +47,37 @@ export default function BacktestPage() {
                 <History className="w-4 h-4 text-slate-400" /> Recent Backtests
               </h2>
             </div>
-            <div className="p-12 text-center text-slate-500">
-              <p>No recent backtests found. Head over to the Strategy Builder to start one.</p>
+            <div className="p-0">
+              {loading ? (
+                <div className="p-12 text-center text-slate-500">Loading backtests...</div>
+              ) : backtests.length === 0 ? (
+                <div className="p-12 text-center text-slate-500">
+                  <p>No recent backtests found. Head over to the Strategy Builder to start one.</p>
+                </div>
+              ) : (
+                <table className="w-full text-left">
+                  <tbody className="divide-y divide-slate-100">
+                    {backtests.map((bt) => (
+                      <tr key={bt.id} className="hover:bg-slate-50 transition-colors">
+                        <td className="px-5 py-4">
+                          <p className="text-sm font-bold text-text mb-0.5">{bt.strategyName}</p>
+                          <p className="text-[10px] text-slate-500 uppercase font-semibold">Strategy ID: {bt.strategyId?.substring(0,8)}</p>
+                        </td>
+                        <td className="px-5 py-4">
+                          <span className={`inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider ${
+                            bt.status === 'Completed' ? 'bg-success/10 text-success' : 'bg-orange-500/10 text-orange-500'
+                          }`}>
+                            {bt.status}
+                          </span>
+                        </td>
+                        <td className="px-5 py-4 text-right">
+                          <button className="text-xs font-semibold text-primary hover:underline">View Report</button>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              )}
             </div>
           </div>
         </div>

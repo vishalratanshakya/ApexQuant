@@ -6,9 +6,10 @@ import ConditionCanvas from '@/components/builder/ConditionCanvas';
 import IndicatorsSidebar from '@/components/builder/IndicatorsSidebar';
 import BottomBar from '@/components/builder/BottomBar';
 import { Pencil } from 'lucide-react';
+import { BuilderProvider, useBuilder } from '@/contexts/BuilderContext';
 
-export default function StrategyBuilderPage() {
-  const [strategyName, setStrategyName] = useState('My Awesome Strategy');
+function BuilderUI() {
+  const { name, setName } = useBuilder();
   const [isEditingName, setIsEditingName] = useState(false);
 
   return (
@@ -20,8 +21,8 @@ export default function StrategyBuilderPage() {
             {isEditingName ? (
               <input 
                 type="text" 
-                value={strategyName}
-                onChange={(e) => setStrategyName(e.target.value)}
+                value={name}
+                onChange={(e) => setName(e.target.value)}
                 onBlur={() => setIsEditingName(false)}
                 onKeyDown={(e) => e.key === 'Enter' && setIsEditingName(false)}
                 autoFocus
@@ -30,7 +31,7 @@ export default function StrategyBuilderPage() {
             ) : (
               <>
                 <h1 className="text-3xl font-black text-text font-display cursor-pointer hover:text-primary transition-colors" onClick={() => setIsEditingName(true)}>
-                  {strategyName}
+                  {name}
                 </h1>
                 <button onClick={() => setIsEditingName(true)} className="p-1.5 text-slate-300 opacity-0 group-hover:opacity-100 transition-opacity hover:text-primary">
                   <Pencil className="w-4 h-4" />
@@ -63,5 +64,13 @@ export default function StrategyBuilderPage() {
       {/* Fixed Bottom Action Bar */}
       <BottomBar />
     </div>
+  );
+}
+
+export default function StrategyBuilderPage() {
+  return (
+    <BuilderProvider>
+      <BuilderUI />
+    </BuilderProvider>
   );
 }

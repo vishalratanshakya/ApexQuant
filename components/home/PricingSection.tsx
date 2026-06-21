@@ -139,7 +139,7 @@ export default function PricingSection() {
               </div>
 
               <Link
-                href="/login"
+                href={plan.name === 'Starter' ? '/get-started' : '/login'}
                 id={`pricing-${plan.name.toLowerCase()}-btn`}
                 className={`flex items-center justify-center gap-2 w-full py-3 px-6 rounded-xl font-semibold text-sm mb-8 ${plan.ctaClass}`}
               >

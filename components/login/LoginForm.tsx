@@ -37,7 +37,7 @@ export default function LoginForm() {
     try {
       await signInWithGoogle();
       toast.success('Successfully logged in with Google!');
-      router.push('/dashboard');
+      router.push('/');
     } catch (err: unknown) {
       const errorMessage = err instanceof Error ? err.message : 'Google sign-in failed. Please try again.';
       setError(errorMessage);
@@ -61,11 +61,11 @@ export default function LoginForm() {
       } else if (mode === 'signup') {
         await signUpWithEmail(email, password);
         toast.success('Account created successfully!');
-        router.push('/dashboard');
+        router.push('/');
       } else {
         await signInWithEmail(email, password);
         toast.success('Welcome back to ApexQuant!');
-        router.push('/dashboard');
+        router.push('/');
       }
     } catch (err: unknown) {
       let msg = 'Something went wrong. Please try again.';

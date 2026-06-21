@@ -4,19 +4,15 @@ import dynamic from 'next/dynamic';
 
 const TradingViewChart = dynamic(() => import('@/components/dashboard/TradingViewChart'), { ssr: false });
 
-const mockChartData = [
-  { time: '2023-09-01', value: 24100 },
-  { time: '2023-09-02', value: 24150 },
-  { time: '2023-09-03', value: 24220 },
-  { time: '2023-09-04', value: 24180 },
-  { time: '2023-09-05', value: 24350 },
-  { time: '2023-09-06', value: 24500 },
-  { time: '2023-09-07', value: 24450 },
-  { time: '2023-09-08', value: 24620 },
-  { time: '2023-09-09', value: 24850 },
-  { time: '2023-09-10', value: 24700 },
-];
-
+const mockChartData = Array.from({ length: 150 }, (_, i) => {
+  const time = new Date('2023-01-01');
+  time.setDate(time.getDate() + i);
+  const value = 24000 + i * 25 + Math.sin(i * 0.2) * 400 + Math.cos(i * 0.5) * 200;
+  return {
+    time: time.toISOString().split('T')[0],
+    value: Math.round(value * 100) / 100
+  };
+});
 export default function ConditionCanvas() {
   const [activeTab, setActiveTab] = useState<'technical' | 'options'>('technical');
 
@@ -57,7 +53,7 @@ export default function ConditionCanvas() {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 flex flex-col h-full">
       {/* Builder Type Toggle */}
       <div className="flex bg-slate-100 p-1 rounded-xl w-fit">
         <button 
@@ -181,16 +177,7 @@ export default function ConditionCanvas() {
             </div>
           </div>
 
-          {/* Strategy Preview Chart */}
-          <div className="glass-card rounded-xl p-6 border border-border bg-white shadow-sm overflow-hidden">
-            <div className="flex items-center justify-between mb-4">
-               <h2 className="text-base font-bold text-text">Strategy Preview</h2>
-               <span className="text-xs font-semibold px-2 py-1 bg-primary/10 text-primary rounded-lg">Historical Mock</span>
-            </div>
-            <div className="h-64 w-full bg-slate-50/50 rounded-lg overflow-hidden border border-border">
-              <TradingViewChart data={mockChartData} />
-            </div>
-          </div>
+
         </div>
       ) : (
         <div className="space-y-6 animate-in fade-in">
@@ -257,6 +244,19 @@ export default function ConditionCanvas() {
           </div>
         </div>
       )}
+
+      {/* Strategy Preview Chart */}
+      <div className="glass-card rounded-xl p-5 border border-border bg-white shadow-sm flex flex-col flex-1" style={{ minHeight: '400px' }}>
+        <div className="flex items-center justify-between mb-4">
+          <h3 className="text-lg font-bold text-text">Live Strategy Preview</h3>
+          <span className="text-[10px] font-bold px-2 py-0.5 bg-primary/10 text-primary rounded-md uppercase tracking-wider">Historical</span>
+        </div>
+        <div className="flex-1 w-full h-full min-h-[300px] bg-slate-50/50 rounded-lg overflow-hidden border border-border relative">
+          <div className="absolute inset-0">
+            <TradingViewChart data={mockChartData} />
+          </div>
+        </div>
+      </div>
     </div>
   );
 }
