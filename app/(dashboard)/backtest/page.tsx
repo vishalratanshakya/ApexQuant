@@ -32,7 +32,7 @@ export default function BacktestPage() {
           </h1>
           <p className="text-sm text-text-light">Analyze historical performance of your strategies before taking them live.</p>
         </div>
-        <Link href="/dashboard/builder" className="inline-flex items-center gap-2 bg-primary hover:bg-primary-dark text-white px-4 py-2 rounded-xl text-sm font-bold shadow-sm transition-colors">
+        <Link href="/builder" className="inline-flex items-center gap-2 bg-primary hover:bg-primary-dark text-white px-4 py-2 rounded-xl text-sm font-bold shadow-sm transition-colors">
           <Plus className="w-4 h-4" />
           New Backtest
         </Link>
@@ -71,7 +71,7 @@ export default function BacktestPage() {
                           </span>
                         </td>
                         <td className="px-5 py-4 text-right">
-                          <button className="text-xs font-semibold text-primary hover:underline">View Report</button>
+                          <Link href="/analytics" className="text-xs font-semibold text-primary hover:underline">View Report</Link>
                         </td>
                       </tr>
                     ))}
