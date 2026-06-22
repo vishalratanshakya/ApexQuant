@@ -25,38 +25,47 @@ export default function PortfolioPage() {
       </div>
 
       <div className="grid md:grid-cols-3 gap-6">
-        <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="bg-white p-6 rounded-2xl border border-border shadow-sm flex flex-col justify-center">
-          <div className="flex items-center gap-3 mb-2">
-            <div className="w-10 h-10 rounded-xl bg-blue-50 flex items-center justify-center text-blue-500">
+        <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="bg-gradient-to-br from-blue-600 to-indigo-700 text-white p-6 rounded-2xl border-0 shadow-lg flex flex-col justify-center relative overflow-hidden">
+          <div className="absolute top-0 right-0 p-8 opacity-10">
+            <Wallet className="w-24 h-24 transform rotate-12" />
+          </div>
+          <div className="flex items-center gap-3 mb-2 relative z-10">
+            <div className="w-10 h-10 rounded-xl bg-white/20 flex items-center justify-center text-white backdrop-blur-sm">
               <Wallet className="w-5 h-5" />
             </div>
-            <h3 className="text-slate-500 font-semibold">Total Capital</h3>
+            <h3 className="text-blue-100 font-semibold">Total Capital</h3>
           </div>
-          <div className="text-3xl font-black font-display text-text">₹12,50,000</div>
-          <div className="text-sm text-slate-400 mt-1">₹8,40,000 available margin</div>
+          <div className="text-3xl font-black font-display text-white relative z-10">₹12,50,000</div>
+          <div className="text-sm text-blue-200 mt-1 relative z-10">₹8,40,000 available margin</div>
         </motion.div>
 
-        <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.05 }} className="bg-white p-6 rounded-2xl border border-border shadow-sm flex flex-col justify-center">
-          <div className="flex items-center gap-3 mb-2">
-            <div className="w-10 h-10 rounded-xl bg-success/10 flex items-center justify-center text-success">
+        <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.05 }} className="bg-gradient-to-br from-violet-600 to-purple-700 text-white p-6 rounded-2xl border-0 shadow-lg flex flex-col justify-center relative overflow-hidden">
+          <div className="absolute top-0 right-0 p-8 opacity-10">
+            <Activity className="w-24 h-24 transform rotate-12" />
+          </div>
+          <div className="flex items-center gap-3 mb-2 relative z-10">
+            <div className="w-10 h-10 rounded-xl bg-white/20 flex items-center justify-center text-white backdrop-blur-sm">
               <Activity className="w-5 h-5" />
             </div>
-            <h3 className="text-slate-500 font-semibold">Invested Value</h3>
+            <h3 className="text-purple-100 font-semibold">Invested Value</h3>
           </div>
-          <div className="text-3xl font-black font-display text-text">₹4,10,000</div>
-          <div className="text-sm text-slate-400 mt-1">32% of total capital</div>
+          <div className="text-3xl font-black font-display text-white relative z-10">₹4,10,000</div>
+          <div className="text-sm text-purple-200 mt-1 relative z-10">32% of total capital</div>
         </motion.div>
 
-        <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }} className="bg-white p-6 rounded-2xl border border-border shadow-sm flex flex-col justify-center">
-          <div className="flex items-center gap-3 mb-2">
-            <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center text-primary">
+        <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }} className="bg-gradient-to-br from-emerald-500 to-teal-700 text-white p-6 rounded-2xl border-0 shadow-lg flex flex-col justify-center relative overflow-hidden">
+          <div className="absolute top-0 right-0 p-8 opacity-10">
+            <IndianRupee className="w-24 h-24 transform rotate-12" />
+          </div>
+          <div className="flex items-center gap-3 mb-2 relative z-10">
+            <div className="w-10 h-10 rounded-xl bg-white/20 flex items-center justify-center text-white backdrop-blur-sm">
               <IndianRupee className="w-5 h-5" />
             </div>
-            <h3 className="text-slate-500 font-semibold">Today&apos;s P&L</h3>
+            <h3 className="text-teal-100 font-semibold">Today&apos;s P&L</h3>
           </div>
-          <div className="flex items-end gap-3">
-            <div className="text-3xl font-black font-display text-success">+₹3,130</div>
-            <div className="flex items-center text-success bg-success/10 px-2 py-0.5 rounded-md text-xs font-bold mb-1.5">
+          <div className="flex items-end gap-3 relative z-10">
+            <div className="text-3xl font-black font-display text-white">+₹3,130</div>
+            <div className="flex items-center text-white bg-white/20 backdrop-blur-sm px-2 py-0.5 rounded-md text-xs font-bold mb-1.5">
               <ArrowUpRight className="w-3 h-3 mr-0.5" /> 0.76%
             </div>
           </div>
