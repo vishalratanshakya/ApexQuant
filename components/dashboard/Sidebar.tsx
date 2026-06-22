@@ -1,19 +1,20 @@
 'use client';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
-import { LayoutDashboard, Workflow, Layers, FlaskConical, Activity, History, BarChart2, PieChart, ScanEye, Bell, Settings, LogOut, ShieldAlert } from 'lucide-react';
+import { LayoutDashboard, Workflow, Layers, FlaskConical, Activity, History, BarChart2, PieChart, ScanEye, Bell, Settings, LogOut } from 'lucide-react';
 import { signOut } from '@/lib/auth';
 import { toast } from 'react-hot-toast';
-import { useAuth } from '@/providers/AuthProvider';
-import { useEffect, useState } from 'react';
-import { getUserProfile } from '@/lib/db';
 
 const navItems = [
-  { name: 'Dashboard', href: '/dashboard', icon: LayoutDashboard },
-  { name: 'My Strategies', href: '/strategies', icon: Workflow },
-  { name: 'Builder', href: '/builder', icon: FlaskConical },
-  { name: 'Backtesting', href: '/backtest', icon: History },
-  { name: 'Live Deployments', href: '/deployments', icon: Activity },
+  { name: 'Overview', href: '/dashboard', icon: LayoutDashboard },
+  { name: 'My Strategies', href: '/strategies', icon: Layers },
+  { name: 'Strategy Builder', href: '/builder', icon: Workflow },
+  { name: 'Market Scanner', href: '/scanner', icon: ScanEye },
+  { name: 'Backtests', href: '/backtest', icon: FlaskConical },
+  { name: 'Live Deployments', href: '/live', icon: Activity },
+  { name: 'Portfolio', href: '/portfolio', icon: PieChart },
+  { name: 'Trade History', href: '/history', icon: History },
+  { name: 'Analytics', href: '/analytics', icon: BarChart2 },
   { name: 'Templates', href: '/templates', icon: Layers },
   { name: 'Notifications', href: '/notifications', icon: Bell },
   { name: 'Profile', href: '/profile', icon: Settings },
@@ -22,26 +23,6 @@ const navItems = [
 export default function Sidebar() {
   const pathname = usePathname();
   const router = useRouter();
-  const { user } = useAuth();
-  const [isAdmin, setIsAdmin] = useState(false);
-
-  useEffect(() => {
-    const checkAdmin = async () => {
-      if (user) {
-        const profile = await getUserProfile(user.uid);
-        if (profile?.isAdmin) {
-          setIsAdmin(true);
-        } else {
-          setIsAdmin(false);
-        }
-      }
-    };
-    checkAdmin();
-  }, [user]);
-
-  const allNavItems = isAdmin 
-    ? [...navItems, { name: 'Admin Panel', href: '/admin', icon: ShieldAlert }]
-    : navItems;
 
   const handleLogout = async () => {
     try {
@@ -56,7 +37,7 @@ export default function Sidebar() {
   return (
     <aside className="fixed inset-y-0 left-0 w-64 bg-white border-r border-border flex flex-col z-40 mt-16 pb-16 hidden lg:flex">
       <nav className="flex-1 px-4 py-6 space-y-1 overflow-y-auto custom-scrollbar">
-        {allNavItems.map((item) => {
+        {navItems.map((item) => {
           // Highlight if we are exactly on the route, or if we are inside a sub-route (like /backtest/123)
           const isActive = pathname === item.href || (pathname.startsWith(item.href) && item.href !== '/dashboard');
           return (

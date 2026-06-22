@@ -378,32 +378,6 @@ export default function ProfilePage() {
                       Enable 2FA
                     </button>
                   </div>
-
-                  <div className="flex items-center justify-between p-4 rounded-xl border border-indigo-200 bg-indigo-50/50">
-                    <div>
-                      <h3 className="font-bold text-sm text-indigo-900 flex items-center gap-2">
-                        <Shield className="w-4 h-4" /> Admin Privileges
-                      </h3>
-                      <p className="text-xs text-indigo-700 mt-0.5">Mock setting to enable Admin Dashboard access.</p>
-                    </div>
-                    <label className="relative inline-flex items-center cursor-pointer">
-                      <input 
-                        type="checkbox" 
-                        className="sr-only peer"
-                        checked={profile?.isAdmin || false}
-                        onChange={async (e) => {
-                          const isChecked = e.target.checked;
-                          if (!user) return;
-                          toast.loading(isChecked ? 'Enabling admin...' : 'Disabling admin...');
-                          await updateUserProfile(user.uid, { isAdmin: isChecked });
-                          setProfile(prev => prev ? { ...prev, isAdmin: isChecked } : null);
-                          toast.dismiss();
-                          toast.success(isChecked ? 'Admin privileges granted!' : 'Admin privileges removed.');
-                        }}
-                      />
-                      <div className="w-11 h-6 bg-slate-300 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-indigo-600"></div>
-                    </label>
-                  </div>
                 </div>
 
                 <div className="pt-6 border-t border-border">

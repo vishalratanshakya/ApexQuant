@@ -63,7 +63,7 @@ export interface UserProfileData {
   experience?: 'Beginner' | 'Intermediate' | 'Advanced' | '';
   bio?: string;
   plan?: 'Free' | 'Pro' | 'Enterprise';
-  isAdmin?: boolean;
+  role?: 'admin' | 'user';
   brokers?: {
     id: string;
     name: string;
@@ -86,6 +86,11 @@ export async function getUserProfile(userId: string): Promise<UserProfileData | 
   const userRef = doc(db, 'users', userId);
   const snap = await getDoc(userRef);
   return snap.exists() ? snap.data() as UserProfileData : null;
+}
+
+export async function verifyAdminAccess(userId: string): Promise<boolean> {
+  const profile = await getUserProfile(userId);
+  return profile?.role === 'admin';
 }
 
 export async function updateUserProfile(userId: string, data: Partial<UserProfileData>) {
