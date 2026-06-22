@@ -1,8 +1,86 @@
-import { Bell, Search, UserCircle } from 'lucide-react';
+import { Bell, Search, UserCircle, AlertCircle, Megaphone } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
+import { useState, useRef, useEffect } from 'react';
+import { db } from '@/lib/firebase';
+import { collection, onSnapshot, query, where, getDocs, updateDoc, doc } from 'firebase/firestore';
 
 export function AdminHeader() {
   const { user } = useAuth();
+  const [notificationsOpen, setNotificationsOpen] = useState(false);
+  const notifRef = useRef<HTMLDivElement>(null);
+
+  const [announcements, setAnnouncements] = useState<any[]>([]);
+  const [dismissed, setDismissed] = useState<string[]>([]);
+
+  useEffect(() => {
+    const stored = localStorage.getItem('dismissedAnnouncements');
+    if (stored) {
+      try {
+        setDismissed(JSON.parse(stored));
+      } catch (e) {}
+    }
+  }, []);
+
+  useEffect(() => {
+    if (!user) return;
+    
+    // Listener for notifications dropdown
+    const q = query(collection(db, 'announcements'), where('status', '==', 'Sent'));
+    const unsub = onSnapshot(q, (snap) => {
+      const fetched: any[] = [];
+      snap.forEach(document => fetched.push({ id: document.id, ...document.data() }));
+      fetched.sort((a,b) => {
+        const da = a.sentAt?.toDate ? a.sentAt.toDate() : new Date(a.sentAt || 0);
+        const db = b.sentAt?.toDate ? b.sentAt.toDate() : new Date(b.sentAt || 0);
+        return db.getTime() - da.getTime();
+      });
+      setAnnouncements(fetched);
+    });
+
+    // Auto-Sender for Scheduled Announcements
+    const interval = setInterval(async () => {
+      try {
+        const schedQ = query(collection(db, 'announcements'), where('status', '==', 'Scheduled'));
+        const snapshot = await getDocs(schedQ);
+        const now = new Date();
+        
+        snapshot.forEach(async (document) => {
+          const data = document.data();
+          const sentAt = data.sentAt?.toDate ? data.sentAt.toDate() : new Date(data.sentAt);
+          if (sentAt <= now) {
+            await updateDoc(doc(db, 'announcements', document.id), {
+              status: 'Sent'
+            });
+          }
+        });
+      } catch (err) {
+        console.error("Auto-sender error:", err);
+      }
+    }, 10000); // Checks every 10 seconds while admin is online
+
+    return () => {
+      unsub();
+      clearInterval(interval);
+    };
+  }, [user]);
+
+  const unreadAnnouncements = announcements.filter(a => !dismissed.includes(a.id));
+
+  const handleMarkAllRead = () => {
+    const newDismissed = [...new Set([...dismissed, ...announcements.map(a => a.id)])];
+    setDismissed(newDismissed);
+    localStorage.setItem('dismissedAnnouncements', JSON.stringify(newDismissed));
+  };
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (notifRef.current && !notifRef.current.contains(event.target as Node)) {
+        setNotificationsOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
 
   return (
     <header className="h-16 bg-white border-b border-slate-200 px-6 flex items-center justify-between sticky top-0 z-20">
@@ -23,10 +101,62 @@ export function AdminHeader() {
           />
         </div>
 
-        <button className="relative p-2 text-slate-400 hover:text-slate-600 rounded-full hover:bg-slate-50 transition-colors">
-          <Bell className="w-5 h-5" />
-          <span className="absolute top-1 right-1 w-2 h-2 rounded-full bg-blue-500 border-2 border-white"></span>
-        </button>
+        <div className="relative" ref={notifRef}>
+          <button 
+            onClick={() => setNotificationsOpen(!notificationsOpen)}
+            className="relative p-2 text-slate-400 hover:text-slate-600 rounded-full hover:bg-slate-50 transition-colors block"
+          >
+            <Bell className="w-5 h-5" />
+            {unreadAnnouncements.length > 0 && (
+              <span className="absolute top-1 right-1 w-2 h-2 rounded-full bg-blue-500 border-2 border-white"></span>
+            )}
+          </button>
+
+          {/* Notifications Dropdown */}
+          {notificationsOpen && (
+            <div className="absolute right-0 mt-2 w-80 bg-white rounded-xl shadow-lg border border-slate-200 py-2 animate-in fade-in slide-in-from-top-2 z-50 flex flex-col max-h-[80vh]">
+              <div className="px-4 py-3 border-b border-slate-100 flex items-center justify-between shrink-0">
+                <h3 className="font-bold text-slate-800 text-sm">Notifications</h3>
+                {unreadAnnouncements.length > 0 && (
+                  <button onClick={handleMarkAllRead} className="text-xs font-bold text-blue-600 hover:text-blue-700">Mark all read</button>
+                )}
+              </div>
+              <div className="overflow-y-auto flex-1 custom-scrollbar">
+                {announcements.length === 0 ? (
+                  <div className="p-8 text-center text-sm text-slate-500">No notifications</div>
+                ) : (
+                  <div className="divide-y divide-slate-50">
+                    {announcements.map(a => {
+                      const isUnread = !dismissed.includes(a.id);
+                      return (
+                        <div key={a.id} onClick={() => {
+                          if (isUnread) {
+                            const newD = [...dismissed, a.id];
+                            setDismissed(newD);
+                            localStorage.setItem('dismissedAnnouncements', JSON.stringify(newD));
+                          }
+                        }} className={`p-4 hover:bg-slate-50 cursor-pointer transition-colors ${isUnread ? 'bg-blue-50/50' : ''}`}>
+                          <div className="flex gap-3">
+                            <div className="shrink-0 mt-0.5">
+                              {a.priority === 'Urgent' ? <AlertCircle className="w-4 h-4 text-red-500" /> : <Megaphone className="w-4 h-4 text-blue-500" />}
+                            </div>
+                            <div>
+                              <p className={`text-sm leading-tight ${isUnread ? 'font-bold text-slate-800' : 'font-medium text-slate-600'}`}>{a.title}</p>
+                              <p className="text-xs text-slate-500 mt-1.5 line-clamp-2">{a.content}</p>
+                              <p className="text-[10px] text-slate-400 mt-2">
+                                {a.sentAt?.toDate ? a.sentAt.toDate().toLocaleString() : 'Just now'}
+                              </p>
+                            </div>
+                          </div>
+                        </div>
+                      )
+                    })}
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
+        </div>
 
         <div className="flex items-center gap-3 border-l border-slate-200 pl-6">
           <div className="text-right hidden sm:block">

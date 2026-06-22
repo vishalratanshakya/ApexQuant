@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { useEffect } from 'react';
 import Sidebar from '@/components/dashboard/Sidebar';
 import Header from '@/components/dashboard/Header';
+import GlobalAnnouncements from '@/components/dashboard/GlobalAnnouncements';
 
 export default function DashboardLayout({
   children,
@@ -33,9 +34,12 @@ export default function DashboardLayout({
       <Header />
       <div className="flex flex-1 pt-16">
         <Sidebar />
-        <main className="flex-1 lg:pl-64 p-6 lg:p-8 min-h-[calc(100vh-64px)]">
-          <div className="max-w-7xl mx-auto">
-            {children}
+        <main className="flex-1 lg:pl-64 min-h-[calc(100vh-64px)] flex flex-col">
+          <GlobalAnnouncements />
+          <div className="flex-1 p-6 lg:p-8">
+            <div className="max-w-7xl mx-auto">
+              {children}
+            </div>
           </div>
         </main>
       </div>

@@ -1,8 +1,10 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { toast } from 'react-hot-toast';
+import { db } from '@/lib/firebase';
+import { collection, onSnapshot } from 'firebase/firestore';
 import { mockTemplates, StrategyTemplate, TemplateCategory, TemplateDifficulty, InstrumentType } from '@/lib/mockTemplates';
 import { TemplateCard } from '@/components/templates/TemplateCard';
 import { TemplateFilters } from '@/components/templates/TemplateFilters';
@@ -18,6 +20,35 @@ export default function StrategyTemplatesPage() {
   const [selectedInstrument, setSelectedInstrument] = useState<InstrumentType | 'All'>('All');
   
   const [previewTemplate, setPreviewTemplate] = useState<StrategyTemplate | null>(null);
+  const [dbTemplates, setDbTemplates] = useState<StrategyTemplate[]>([]);
+
+  useEffect(() => {
+    const unsub = onSnapshot(collection(db, 'templates'), (snap) => {
+      const fetched: StrategyTemplate[] = [];
+      snap.forEach(doc => {
+        const data = doc.data();
+        if (data.status === 'Active') {
+          fetched.push({
+            id: doc.id,
+            name: data.name || 'Unnamed Strategy',
+            description: data.description || '',
+            detailedDescription: data.detailedDescription || data.description || '',
+            category: (data.category as TemplateCategory) || 'Intraday',
+            difficulty: (data.difficulty as TemplateDifficulty) || 'Intermediate',
+            instrument: (data.instruments && data.instruments.length > 0) ? (data.instruments[0] as InstrumentType) : 'NIFTY50',
+            winRate: parseInt(data.winRate) || 60,
+            avgReturn: '+5.0%',
+            maxDrawdown: '-2.0%',
+            tradesPerMonth: 10,
+            equityCurve: [],
+            trending: true, // Make new active published templates appear in trending
+          });
+        }
+      });
+      setDbTemplates(fetched);
+    });
+    return () => unsub();
+  }, []);
 
   const handleUseTemplate = (template: StrategyTemplate) => {
     toast.success(`Cloning ${template.name}...`);
@@ -29,7 +60,9 @@ export default function StrategyTemplatesPage() {
   };
 
   // Filter logic
-  const filteredTemplates = mockTemplates.filter(t => {
+  const allTemplates = [...dbTemplates, ...mockTemplates];
+  
+  const filteredTemplates = allTemplates.filter(t => {
     const matchesSearch = t.name.toLowerCase().includes(searchQuery.toLowerCase()) || 
                           t.description.toLowerCase().includes(searchQuery.toLowerCase());
     const matchesCategory = selectedCategory === 'All' || t.category === selectedCategory;

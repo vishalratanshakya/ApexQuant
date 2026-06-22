@@ -3,10 +3,10 @@
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
-  Send, Calendar, Clock, Edit, Trash2, Copy, AlertCircle, Info, Megaphone, Users
+  Send, Calendar, Clock, Edit, Trash2, Copy, AlertCircle, Info, Megaphone, Users, Eye
 } from 'lucide-react';
 import { db } from '@/lib/firebase';
-import { collection, onSnapshot, doc, deleteDoc, addDoc, serverTimestamp } from 'firebase/firestore';
+import { collection, onSnapshot, doc, deleteDoc, addDoc, serverTimestamp, updateDoc } from 'firebase/firestore';
 import toast from 'react-hot-toast';
 
 export function AnnouncementsTab() {
@@ -18,6 +18,35 @@ export function AnnouncementsTab() {
   const [content, setContent] = useState('');
   const [audience, setAudience] = useState('All Users');
   const [priority, setPriority] = useState('Info');
+  const [editingId, setEditingId] = useState<string | null>(null);
+
+  const [activeTab, setActiveTab] = useState('All');
+  const [showSchedule, setShowSchedule] = useState(false);
+  const [scheduleDate, setScheduleDate] = useState('');
+
+  const resetForm = () => {
+    setTitle('');
+    setContent('');
+    setEditingId(null);
+  };
+
+  const handleEditClick = (a: any) => {
+    setTitle(a.title);
+    setContent(a.content);
+    setAudience(a.audience);
+    setPriority(a.priority);
+    setEditingId(a.id);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  const handleCopyClick = (a: any) => {
+    setTitle(`${a.title} (Copy)`);
+    setContent(a.content);
+    setAudience(a.audience);
+    setPriority(a.priority);
+    setEditingId(null);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
 
   useEffect(() => {
     const unsub = onSnapshot(collection(db, 'announcements'), (snap) => {
@@ -47,22 +76,51 @@ export function AnnouncementsTab() {
     if (!title || !content) return toast.error('Please fill in title and content');
     
     try {
-      await addDoc(collection(db, 'announcements'), {
-        title,
-        content,
-        audience,
-        priority,
-        status: 'Sent',
-        sentAt: serverTimestamp(),
-        reach: 0
-      });
-      toast.success('Announcement sent successfully!');
-      setTitle('');
-      setContent('');
+      if (editingId && !editingId.startsWith('mock')) {
+        await updateDoc(doc(db, 'announcements', editingId), {
+          title, content, audience, priority, status: 'Sent', sentAt: serverTimestamp()
+        });
+        toast.success('Announcement updated and sent!');
+      } else {
+        await addDoc(collection(db, 'announcements'), {
+          title, content, audience, priority, status: 'Sent', sentAt: serverTimestamp(), reach: 0
+        });
+        toast.success('Announcement sent successfully!');
+      }
+      resetForm();
     } catch (e) {
       toast.error('Failed to send announcement');
     }
   };
+
+  const handleSchedule = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!title || !content || !scheduleDate) return toast.error('Please fill in all fields');
+    
+    try {
+      if (editingId && !editingId.startsWith('mock')) {
+        await updateDoc(doc(db, 'announcements', editingId), {
+          title, content, audience, priority, status: 'Scheduled', sentAt: new Date(scheduleDate)
+        });
+        toast.success('Announcement updated and scheduled!');
+      } else {
+        await addDoc(collection(db, 'announcements'), {
+          title, content, audience, priority, status: 'Scheduled', sentAt: new Date(scheduleDate), reach: 0
+        });
+        toast.success('Announcement scheduled successfully!');
+      }
+      resetForm();
+      setShowSchedule(false);
+    } catch (e) {
+      toast.error('Failed to schedule announcement');
+    }
+  };
+
+  const filteredAnnouncements = announcements.filter(a => {
+    if (activeTab === 'Sent') return a.status === 'Sent';
+    if (activeTab === 'Scheduled') return a.status === 'Scheduled';
+    return true;
+  });
 
   const handleDelete = async (id: string) => {
     if (!confirm('Delete this announcement?')) return;
@@ -91,8 +149,15 @@ export function AnnouncementsTab() {
         {/* Form */}
         <div className="lg:col-span-1">
           <div className="bg-white rounded-xl border border-slate-200 shadow-sm p-6 sticky top-6">
-            <h3 className="text-lg font-bold text-slate-800 mb-6 flex items-center gap-2">
-              <Megaphone className="w-5 h-5 text-blue-600" /> New Broadcast
+            <h3 className="text-lg font-bold text-slate-800 mb-6 flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <Megaphone className="w-5 h-5 text-blue-600" /> {editingId ? 'Edit Broadcast' : 'New Broadcast'}
+              </div>
+              {editingId && (
+                <button type="button" onClick={resetForm} className="text-xs font-bold text-slate-400 hover:text-slate-600">
+                  Cancel Edit
+                </button>
+              )}
             </h3>
             <form onSubmit={handleSend} className="space-y-4">
               <div>
@@ -142,7 +207,7 @@ export function AnnouncementsTab() {
                 <button type="submit" className="flex-1 py-2 bg-blue-600 text-white rounded-lg text-sm font-bold shadow-md hover:bg-blue-700 transition-colors flex items-center justify-center gap-2">
                   <Send className="w-4 h-4" /> Send Now
                 </button>
-                <button type="button" className="px-4 py-2 bg-white border border-slate-200 text-slate-600 rounded-lg text-sm font-bold hover:bg-slate-50 transition-colors flex items-center gap-2">
+                <button type="button" onClick={() => setShowSchedule(true)} className="px-4 py-2 bg-white border border-slate-200 text-slate-600 rounded-lg text-sm font-bold hover:bg-slate-50 transition-colors flex items-center gap-2">
                   <Clock className="w-4 h-4" />
                 </button>
               </div>
@@ -156,15 +221,15 @@ export function AnnouncementsTab() {
             <div className="p-4 border-b border-slate-200 flex items-center justify-between bg-slate-50/50">
               <h3 className="font-bold text-slate-800">Broadcast History</h3>
               <div className="flex gap-2">
-                <button className="text-xs font-bold text-slate-500 hover:text-blue-600 px-2">All</button>
-                <button className="text-xs font-bold text-slate-500 hover:text-blue-600 px-2">Sent</button>
-                <button className="text-xs font-bold text-slate-500 hover:text-blue-600 px-2">Scheduled</button>
+                <button onClick={() => setActiveTab('All')} className={`text-xs font-bold px-2 ${activeTab === 'All' ? 'text-blue-600' : 'text-slate-500 hover:text-blue-600'}`}>All</button>
+                <button onClick={() => setActiveTab('Sent')} className={`text-xs font-bold px-2 ${activeTab === 'Sent' ? 'text-blue-600' : 'text-slate-500 hover:text-blue-600'}`}>Sent</button>
+                <button onClick={() => setActiveTab('Scheduled')} className={`text-xs font-bold px-2 ${activeTab === 'Scheduled' ? 'text-blue-600' : 'text-slate-500 hover:text-blue-600'}`}>Scheduled</button>
               </div>
             </div>
 
             <div className="divide-y divide-slate-100 flex-1 overflow-y-auto">
               <AnimatePresence>
-                {announcements.map((a) => {
+                {filteredAnnouncements.map((a) => {
                   const dateStr = a.sentAt ? (a.sentAt.toDate?.() || new Date(a.sentAt)).toLocaleString() : 'Just now';
                   
                   return (
@@ -187,8 +252,8 @@ export function AnnouncementsTab() {
                           {a.status === 'Sent' && <span className="flex items-center gap-1.5 text-blue-600"><Eye className="w-3.5 h-3.5" /> {a.reach} seen</span>}
                         </div>
                         <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                          <button className="p-1.5 text-slate-400 hover:text-blue-600 rounded-lg" title="Duplicate"><Copy className="w-4 h-4" /></button>
-                          <button className="p-1.5 text-slate-400 hover:text-indigo-600 rounded-lg" title="Edit"><Edit className="w-4 h-4" /></button>
+                          <button onClick={() => handleCopyClick(a)} className="p-1.5 text-slate-400 hover:text-blue-600 rounded-lg" title="Duplicate"><Copy className="w-4 h-4" /></button>
+                          <button onClick={() => handleEditClick(a)} className="p-1.5 text-slate-400 hover:text-indigo-600 rounded-lg" title="Edit"><Edit className="w-4 h-4" /></button>
                           <button onClick={() => handleDelete(a.id)} className="p-1.5 text-slate-400 hover:text-red-600 rounded-lg" title="Delete"><Trash2 className="w-4 h-4" /></button>
                         </div>
                       </div>
@@ -197,13 +262,42 @@ export function AnnouncementsTab() {
                 })}
               </AnimatePresence>
               
-              {announcements.length === 0 && !loading && (
-                <div className="p-8 text-center text-slate-500">No announcements found.</div>
+              {filteredAnnouncements.length === 0 && !loading && (
+                <div className="p-8 text-center text-slate-500">No announcements found in this category.</div>
               )}
             </div>
           </div>
         </div>
       </div>
+
+      {/* Schedule Modal */}
+      {showSchedule && (
+        <div className="fixed inset-0 z-50 bg-slate-900/50 backdrop-blur-sm flex items-center justify-center p-4">
+          <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} className="bg-white rounded-2xl shadow-xl w-full max-w-sm overflow-hidden">
+            <div className="p-6 border-b border-slate-100 flex justify-between items-center bg-slate-50">
+              <h3 className="text-lg font-bold text-slate-800 flex items-center gap-2">
+                <Clock className="w-5 h-5 text-blue-600" /> Schedule Broadcast
+              </h3>
+            </div>
+            <div className="p-6 space-y-4">
+              <form id="schedule-form" onSubmit={handleSchedule}>
+                <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Date & Time</label>
+                <input 
+                  type="datetime-local" 
+                  value={scheduleDate} 
+                  onChange={e => setScheduleDate(e.target.value)}
+                  className="w-full px-4 py-2 bg-slate-50 border border-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-blue-500/20 outline-none" 
+                  required
+                />
+              </form>
+            </div>
+            <div className="p-6 border-t border-slate-100 bg-slate-50 flex justify-end gap-3">
+              <button type="button" onClick={() => setShowSchedule(false)} className="px-4 py-2 bg-white border border-slate-200 text-slate-700 rounded-lg text-sm font-bold shadow-sm hover:bg-slate-50">Cancel</button>
+              <button type="submit" form="schedule-form" className="px-4 py-2 bg-blue-600 text-white rounded-lg text-sm font-bold shadow-md hover:bg-blue-700">Schedule</button>
+            </div>
+          </motion.div>
+        </div>
+      )}
     </motion.div>
   );
 }

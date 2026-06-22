@@ -50,6 +50,37 @@ service cloud.firestore {
       allow read: if request.auth != null;
     }
 
+    // Announcements
+    match /announcements/{announcementId} {
+      allow read: if request.auth != null;
+    }
+
+    // Notifications
+    match /notifications/{notificationId} {
+      allow read, delete: if request.auth != null && resource.data.userId == request.auth.uid;
+      allow create: if request.auth != null && request.resource.data.userId == request.auth.uid;
+      allow update: if request.auth != null 
+                    && resource.data.userId == request.auth.uid 
+                    && request.resource.data.userId == request.auth.uid;
+    }
+
+    // Portfolio & Market Scans
+    match /portfolio/{itemId} {
+      allow read, delete: if request.auth != null && resource.data.userId == request.auth.uid;
+      allow create: if request.auth != null && request.resource.data.userId == request.auth.uid;
+      allow update: if request.auth != null 
+                    && resource.data.userId == request.auth.uid 
+                    && request.resource.data.userId == request.auth.uid;
+    }
+
+    // Subscriptions & Payments
+    match /subscriptions/{subscriptionId} {
+      allow read: if request.auth != null && resource.data.userId == request.auth.uid;
+    }
+    match /payments/{paymentId} {
+      allow read: if request.auth != null && resource.data.userId == request.auth.uid;
+    }
+
     // Global Admin Access
     match /{document=**} {
       allow read, write: if isAdmin();

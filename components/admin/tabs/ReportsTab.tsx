@@ -4,7 +4,7 @@ import { useState } from 'react';
 import { motion } from 'framer-motion';
 import { 
   BarChart, PieChart, LineChart, Download, Calendar, 
-  FileText, RefreshCw, Eye, Trash2
+  FileText, RefreshCw, Eye, Trash2, Activity
 } from 'lucide-react';
 import dynamic from 'next/dynamic';
 import toast from 'react-hot-toast';

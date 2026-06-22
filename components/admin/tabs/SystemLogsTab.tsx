@@ -14,6 +14,7 @@ export function SystemLogsTab() {
   const [logs, setLogs] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
+  const [filterSeverity, setFilterSeverity] = useState('All');
 
   useEffect(() => {
     // In a real scenario, this would query a 'logs' collection.
@@ -42,9 +43,10 @@ export function SystemLogsTab() {
   }, []);
 
   const filteredLogs = logs.filter(l => 
-    l.description.toLowerCase().includes(searchTerm.toLowerCase()) || 
-    l.user.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    l.type.toLowerCase().includes(searchTerm.toLowerCase())
+    (filterSeverity === 'All' || l.severity === filterSeverity) &&
+    (l.description.toLowerCase().includes(searchTerm.toLowerCase()) || 
+     l.user.toLowerCase().includes(searchTerm.toLowerCase()) ||
+     l.type.toLowerCase().includes(searchTerm.toLowerCase()))
   );
 
   const getIconForType = (type: string) => {
@@ -66,10 +68,38 @@ export function SystemLogsTab() {
     }
   };
 
-  const handleClearLogs = () => {
-    if (!confirm('DANGER: Are you sure you want to clear all system logs? This cannot be undone.')) return;
-    toast.success('Logs cleared successfully');
-    setLogs([]);
+  const handleClearOldLogs = () => {
+    if (!confirm('Are you sure you want to clear system logs older than 7 days? This cannot be undone.')) return;
+    
+    const sevenDaysAgo = Date.now() - 7 * 24 * 60 * 60 * 1000;
+    const remainingLogs = logs.filter(l => l.timestamp.getTime() > sevenDaysAgo);
+    
+    if (remainingLogs.length === logs.length) {
+      toast('No old logs found to clear', { icon: 'ℹ️' });
+    } else {
+      setLogs(remainingLogs);
+      toast.success(`Cleared ${logs.length - remainingLogs.length} old logs successfully`);
+    }
+  };
+
+  const handleExportCSV = () => {
+    if (filteredLogs.length === 0) return toast.error('No logs to export');
+    
+    const headers = ['Timestamp', 'Event Type', 'Description', 'User', 'IP', 'Severity'];
+    const csvContent = [
+      headers.join(','),
+      ...filteredLogs.map(l => `"${l.timestamp.toLocaleString()}","${l.type}","${l.description.replace(/"/g, '""')}","${l.user}","${l.ip}","${l.severity}"`)
+    ].join('\n');
+
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.setAttribute('download', `system_logs_${new Date().toISOString().split('T')[0]}.csv`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    toast.success('Logs exported to CSV');
   };
 
   return (
@@ -82,10 +112,10 @@ export function SystemLogsTab() {
           <p className="text-sm text-slate-500">Platform activity, errors, and comprehensive audit trail</p>
         </div>
         <div className="flex gap-2">
-          <button className="px-4 py-2 bg-white border border-slate-200 text-slate-600 rounded-lg text-sm font-bold hover:bg-slate-50 transition-colors flex items-center gap-2">
+          <button onClick={handleExportCSV} className="px-4 py-2 bg-white border border-slate-200 text-slate-600 rounded-lg text-sm font-bold hover:bg-slate-50 transition-colors flex items-center gap-2">
             <Download className="w-4 h-4" /> Export CSV
           </button>
-          <button onClick={handleClearLogs} className="px-4 py-2 bg-red-50 text-red-600 rounded-lg text-sm font-bold hover:bg-red-100 transition-colors flex items-center gap-2">
+          <button onClick={handleClearOldLogs} className="px-4 py-2 bg-red-50 text-red-600 rounded-lg text-sm font-bold hover:bg-red-100 transition-colors flex items-center gap-2">
             <Trash2 className="w-4 h-4" /> Clear Old Logs
           </button>
         </div>
@@ -93,17 +123,17 @@ export function SystemLogsTab() {
 
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         {[
-          { label: 'Total Logs Today', value: logs.length, icon: Terminal, color: 'text-blue-500' },
-          { label: 'Error Count', value: logs.filter(l => l.type === 'Error').length, icon: AlertTriangle, color: 'text-red-500' },
-          { label: 'Critical Events', value: logs.filter(l => l.severity === 'Critical').length, icon: ShieldAlert, color: 'text-orange-500' },
-          { label: 'Security Logs', value: logs.filter(l => l.type === 'Security').length, icon: ShieldCheck, color: 'text-indigo-500' },
+          { label: 'Total Logs Today', value: logs.length, icon: Terminal, bg: 'bg-gradient-to-br from-blue-500 to-indigo-600 text-white shadow-blue-500/20' },
+          { label: 'Error Count', value: logs.filter(l => l.type === 'Error').length, icon: AlertTriangle, bg: 'bg-gradient-to-br from-red-500 to-rose-600 text-white shadow-red-500/20' },
+          { label: 'Critical Events', value: logs.filter(l => l.severity === 'Critical').length, icon: ShieldAlert, bg: 'bg-gradient-to-br from-orange-500 to-amber-600 text-white shadow-orange-500/20' },
+          { label: 'Security Logs', value: logs.filter(l => l.type === 'Security').length, icon: ShieldCheck, bg: 'bg-gradient-to-br from-emerald-500 to-teal-500 text-white shadow-emerald-500/20' },
         ].map((s, i) => (
-          <div key={i} className="bg-white rounded-xl p-4 border border-slate-200 shadow-sm flex items-center justify-between">
-            <div>
-              <p className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-1">{s.label}</p>
-              <p className="text-2xl font-bold text-slate-800">{s.value}</p>
+          <div key={i} className={`rounded-xl p-5 shadow-lg relative overflow-hidden group flex items-center justify-between ${s.bg}`}>
+            <div className="relative z-10">
+              <p className="text-xs font-bold text-white/80 uppercase tracking-wider mb-1">{s.label}</p>
+              <p className="text-2xl font-bold text-white">{s.value}</p>
             </div>
-            <div className={`p-3 rounded-xl bg-slate-50 ${s.color}`}>
+            <div className="p-3 rounded-xl bg-white/20 text-white relative z-10 group-hover:scale-110 transition-transform">
               <s.icon className="w-6 h-6" />
             </div>
           </div>
@@ -122,10 +152,18 @@ export function SystemLogsTab() {
               className="w-full pl-9 pr-4 py-2 bg-white border border-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-blue-500/20 outline-none"
             />
           </div>
-          <div className="flex gap-2">
-            <button className="px-3 py-2 bg-white border border-slate-200 text-slate-600 rounded-lg text-sm font-bold flex items-center gap-2">
-              <Filter className="w-4 h-4" /> Filters
-            </button>
+          <div className="flex gap-2 relative">
+            <Filter className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
+            <select 
+              value={filterSeverity} 
+              onChange={e => setFilterSeverity(e.target.value)}
+              className="pl-9 pr-4 py-2 bg-white border border-slate-200 text-slate-600 rounded-lg text-sm font-bold outline-none focus:ring-2 focus:ring-blue-500/20 appearance-none cursor-pointer hover:bg-slate-50"
+            >
+              <option value="All">All Severities</option>
+              <option value="Info">Info</option>
+              <option value="Warning">Warning</option>
+              <option value="Critical">Critical</option>
+            </select>
           </div>
         </div>
 

@@ -54,14 +54,30 @@ export function LiveDeploymentsTab() {
     }
   };
 
+  const handlePauseAll = async () => {
+    if (!confirm('Are you sure you want to pause all live deployments?')) return;
+    toast.loading('Pausing all deployments...', { id: 'pauseAll' });
+    try {
+      const active = deployments.filter(d => d.status === 'Running');
+      if (active.length === 0) {
+        toast.success('No active deployments to pause', { id: 'pauseAll' });
+        return;
+      }
+      await Promise.all(active.map(d => updateDoc(doc(db, 'deployments', d.id), { status: 'Paused' })));
+      toast.success(`Paused ${active.length} deployments`, { id: 'pauseAll' });
+    } catch (e) {
+      toast.error('Failed to pause all deployments', { id: 'pauseAll' });
+    }
+  };
+
   const activeDeployments = deployments.filter(d => d.status === 'Running');
   const totalPnl = activeDeployments.reduce((sum, d) => sum + (pnlUpdates[d.id] || 0), 0);
 
   const stats = [
-    { label: 'Total Live', value: activeDeployments.length, color: 'text-emerald-600' },
-    { label: 'Total P&L Today', value: `₹${totalPnl.toFixed(2)}`, color: totalPnl >= 0 ? 'text-success' : 'text-red-500' },
-    { label: 'In Profit', value: activeDeployments.filter(d => (pnlUpdates[d.id] || 0) > 0).length, color: 'text-emerald-600' },
-    { label: 'In Loss / Error', value: activeDeployments.filter(d => (pnlUpdates[d.id] || 0) <= 0).length, color: 'text-red-500' },
+    { label: 'Total Live', value: activeDeployments.length, color: 'text-white', bg: 'bg-gradient-to-br from-blue-500 to-indigo-600 text-white shadow-blue-500/20' },
+    { label: 'Total P&L Today', value: `₹${totalPnl.toFixed(2)}`, color: 'text-white', bg: totalPnl >= 0 ? 'bg-gradient-to-br from-emerald-500 to-teal-500 text-white shadow-emerald-500/20' : 'bg-gradient-to-br from-red-500 to-rose-600 text-white shadow-red-500/20' },
+    { label: 'In Profit', value: activeDeployments.filter(d => (pnlUpdates[d.id] || 0) > 0).length, color: 'text-white', bg: 'bg-gradient-to-br from-purple-500 to-fuchsia-600 text-white shadow-purple-500/20' },
+    { label: 'In Loss / Error', value: activeDeployments.filter(d => (pnlUpdates[d.id] || 0) <= 0).length, color: 'text-white', bg: 'bg-gradient-to-br from-orange-500 to-amber-600 text-white shadow-orange-500/20' },
   ];
 
   return (
@@ -73,18 +89,18 @@ export function LiveDeploymentsTab() {
           </h2>
           <p className="text-sm text-slate-500">Real-time control center for active algorithmic trading</p>
         </div>
-        <button className="px-4 py-2 bg-orange-100 text-orange-700 rounded-lg text-sm font-bold hover:bg-orange-200 transition-colors flex items-center gap-2">
+        <button onClick={handlePauseAll} className="px-4 py-2 bg-orange-100 text-orange-700 rounded-lg text-sm font-bold hover:bg-orange-200 transition-colors flex items-center gap-2">
           <PauseCircle className="w-4 h-4" /> Pause All
         </button>
       </div>
 
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         {stats.map((s, i) => (
-          <div key={i} className="bg-white rounded-xl p-4 border border-slate-200 shadow-sm relative overflow-hidden group">
-            <div className="absolute top-0 right-0 p-4 opacity-5 group-hover:opacity-10 transition-opacity">
-              <Activity className="w-16 h-16" />
+          <div key={i} className={`rounded-xl p-5 border-none shadow-lg relative overflow-hidden group ${s.bg}`}>
+            <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">
+              <Activity className="w-16 h-16 text-white" />
             </div>
-            <p className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-1 relative z-10">{s.label}</p>
+            <p className="text-xs font-bold text-white/80 uppercase tracking-wider mb-1 relative z-10">{s.label}</p>
             <p className={`text-2xl font-bold relative z-10 ${s.color}`}>{s.value}</p>
           </div>
         ))}

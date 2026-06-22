@@ -1,9 +1,11 @@
 'use client';
 
-import { Bell, Search, Menu, TrendingUp, ChevronDown, User, Settings as SettingsIcon, LogOut } from 'lucide-react';
+import { Bell, Search, Menu, TrendingUp, ChevronDown, User, Settings as SettingsIcon, LogOut, AlertCircle, Megaphone } from 'lucide-react';
 import { useAuth } from '@/providers/AuthProvider';
 import Link from 'next/link';
 import { useState, useRef, useEffect } from 'react';
+import { db } from '@/lib/firebase';
+import { collection, onSnapshot, query, where } from 'firebase/firestore';
 import { signOut } from '@/lib/auth';
 import { toast } from 'react-hot-toast';
 import { useRouter } from 'next/navigation';
@@ -11,13 +13,54 @@ import { useRouter } from 'next/navigation';
 export default function Header() {
   const { user } = useAuth();
   const [dropdownOpen, setDropdownOpen] = useState(false);
+  const [notificationsOpen, setNotificationsOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
+  const notifRef = useRef<HTMLDivElement>(null);
   const router = useRouter();
+
+  const [announcements, setAnnouncements] = useState<any[]>([]);
+  const [dismissed, setDismissed] = useState<string[]>([]);
+
+  useEffect(() => {
+    const stored = localStorage.getItem('dismissedAnnouncements');
+    if (stored) {
+      try {
+        setDismissed(JSON.parse(stored));
+      } catch (e) {}
+    }
+  }, []);
+
+  useEffect(() => {
+    if (!user) return;
+    const q = query(collection(db, 'announcements'), where('status', '==', 'Sent'));
+    const unsub = onSnapshot(q, (snap) => {
+      const fetched: any[] = [];
+      snap.forEach(doc => fetched.push({ id: doc.id, ...doc.data() }));
+      fetched.sort((a,b) => {
+        const da = a.sentAt?.toDate ? a.sentAt.toDate() : new Date(a.sentAt || 0);
+        const db = b.sentAt?.toDate ? b.sentAt.toDate() : new Date(b.sentAt || 0);
+        return db.getTime() - da.getTime();
+      });
+      setAnnouncements(fetched);
+    });
+    return () => unsub();
+  }, [user]);
+
+  const unreadAnnouncements = announcements.filter(a => !dismissed.includes(a.id));
+
+  const handleMarkAllRead = () => {
+    const newDismissed = [...new Set([...dismissed, ...announcements.map(a => a.id)])];
+    setDismissed(newDismissed);
+    localStorage.setItem('dismissedAnnouncements', JSON.stringify(newDismissed));
+  };
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
         setDropdownOpen(false);
+      }
+      if (notifRef.current && !notifRef.current.contains(event.target as Node)) {
+        setNotificationsOpen(false);
       }
     };
     document.addEventListener('mousedown', handleClickOutside);
@@ -67,10 +110,65 @@ export default function Header() {
             <span className="text-xs font-semibold text-slate-600">NSE: OPEN</span>
           </div>
 
-          <Link href="/notifications" className="relative p-2 text-slate-400 hover:text-text rounded-full hover:bg-slate-50 transition-colors block">
-            <Bell className="w-5 h-5" />
-            <span className="absolute top-1.5 right-1.5 w-2 h-2 rounded-full bg-loss animate-pulse"></span>
-          </Link>
+          <div className="relative" ref={notifRef}>
+            <button 
+              onClick={() => {
+                setNotificationsOpen(!notificationsOpen);
+                setDropdownOpen(false);
+              }}
+              className="relative p-2 text-slate-400 hover:text-text rounded-full hover:bg-slate-50 transition-colors block"
+            >
+              <Bell className="w-5 h-5" />
+              {unreadAnnouncements.length > 0 && (
+                <span className="absolute top-1.5 right-1.5 w-2 h-2 rounded-full bg-loss animate-pulse"></span>
+              )}
+            </button>
+            
+            {/* Notifications Dropdown */}
+            {notificationsOpen && (
+              <div className="absolute right-0 mt-2 w-80 bg-white rounded-xl shadow-lg border border-border py-2 animate-in fade-in slide-in-from-top-2 z-50 flex flex-col max-h-[80vh]">
+                <div className="px-4 py-3 border-b border-border flex items-center justify-between shrink-0">
+                  <h3 className="font-bold text-slate-800 text-sm">Notifications</h3>
+                  {unreadAnnouncements.length > 0 && (
+                    <button onClick={handleMarkAllRead} className="text-xs font-bold text-blue-600 hover:text-blue-700">Mark all read</button>
+                  )}
+                </div>
+                <div className="overflow-y-auto flex-1 custom-scrollbar">
+                  {announcements.length === 0 ? (
+                    <div className="p-8 text-center text-sm text-slate-500">No notifications</div>
+                  ) : (
+                    <div className="divide-y divide-slate-100">
+                      {announcements.map(a => {
+                        const isUnread = !dismissed.includes(a.id);
+                        return (
+                          <div key={a.id} onClick={() => {
+                            if (isUnread) {
+                              const newD = [...dismissed, a.id];
+                              setDismissed(newD);
+                              localStorage.setItem('dismissedAnnouncements', JSON.stringify(newD));
+                            }
+                          }} className={`p-4 hover:bg-slate-50 cursor-pointer transition-colors ${isUnread ? 'bg-blue-50/30' : ''}`}>
+                            <div className="flex gap-3">
+                              <div className="shrink-0 mt-0.5">
+                                {a.priority === 'Urgent' ? <AlertCircle className="w-4 h-4 text-red-500" /> : <Megaphone className="w-4 h-4 text-blue-500" />}
+                              </div>
+                              <div>
+                                <p className={`text-sm leading-tight ${isUnread ? 'font-bold text-slate-800' : 'font-medium text-slate-600'}`}>{a.title}</p>
+                                <p className="text-xs text-slate-500 mt-1.5 line-clamp-2">{a.content}</p>
+                                <p className="text-[10px] text-slate-400 mt-2">
+                                  {a.sentAt?.toDate ? a.sentAt.toDate().toLocaleString() : 'Just now'}
+                                </p>
+                              </div>
+                            </div>
+                          </div>
+                        )
+                      })}
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
+          </div>
           
           <div className="relative" ref={dropdownRef}>
             <button 

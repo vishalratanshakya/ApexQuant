@@ -83,11 +83,42 @@ export default function BottomBar() {
     }
   };
 
-  const handleDeploy = () => {
-    toast('Deploy Live requires an active broker connection and Pro tier.', {
-      icon: '🔒',
-      duration: 4000,
-    });
+  const handleDeploy = async () => {
+    if (!user) return toast.error('You must be logged in to deploy.');
+    if (!validateSettings()) return;
+
+    let currentStrategyId = strategyId;
+    if (!currentStrategyId) {
+      const loadingToast = toast.loading('Saving your strategy before deploying...');
+      currentStrategyId = await handleSave();
+      toast.dismiss(loadingToast);
+      if (!currentStrategyId) return; // Save failed
+    }
+
+    toast.loading('Deploying to Live Engine...', { id: 'deploy' });
+    try {
+      const { collection, addDoc, doc, updateDoc } = await import('firebase/firestore');
+      const { db } = await import('@/lib/firebase');
+      
+      // Create a deployment record
+      await addDoc(collection(db, 'deployments'), {
+        userId: user.uid,
+        strategyId: currentStrategyId,
+        strategyName: name || 'Unnamed Strategy',
+        broker: { instrument: instrument || 'NIFTY 50' },
+        status: 'Running',
+        createdAt: new Date()
+      });
+      
+      // Update strategy status
+      await updateDoc(doc(db, 'strategies', currentStrategyId), { status: 'Live' });
+      setStatus('Live');
+      
+      toast.success('Successfully Deployed to Live Trading Engine!', { id: 'deploy' });
+    } catch (e: any) {
+      console.error('Deploy Error:', e);
+      toast.error(`Deployment failed: ${e.message}`, { id: 'deploy' });
+    }
   };
 
   return (

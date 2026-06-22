@@ -3,17 +3,20 @@
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
-  Search, Filter, PlayCircle, StopCircle, Eye, Trash2, Download, PauseCircle, AlertTriangle
+  Search, Filter, PlayCircle, StopCircle, Eye, Trash2, Download, PauseCircle, AlertTriangle, RefreshCw
 } from 'lucide-react';
 import { db } from '@/lib/firebase';
 import { collection, onSnapshot, doc, updateDoc, deleteDoc } from 'firebase/firestore';
 import toast from 'react-hot-toast';
+import { jsPDF } from 'jspdf';
+import autoTable from 'jspdf-autotable';
 
 export function StrategiesManagementTab() {
   const [strategies, setStrategies] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
+  const [isExporting, setIsExporting] = useState(false);
 
   useEffect(() => {
     const unsub = onSnapshot(collection(db, 'strategies'), (snap) => {
@@ -55,13 +58,64 @@ export function StrategiesManagementTab() {
     }
   };
 
-  // Mock global stats since Firestore doesn't support easy global counts
   const stats = [
-    { label: 'Total Strategies', value: strategies.length },
-    { label: 'Live Strategies', value: strategies.filter(s => s.status === 'Live').length },
-    { label: 'Paused', value: strategies.filter(s => s.status === 'Paused').length },
-    { label: 'With Errors', value: strategies.filter(s => s.status === 'Error').length },
+    { label: 'Total Strategies', value: strategies.length, bg: 'bg-gradient-to-br from-blue-500 to-indigo-600 text-white shadow-blue-500/20' },
+    { label: 'Live Strategies', value: strategies.filter(s => s.status === 'Live').length, bg: 'bg-gradient-to-br from-emerald-500 to-teal-500 text-white shadow-emerald-500/20' },
+    { label: 'Paused', value: strategies.filter(s => s.status === 'Paused').length, bg: 'bg-gradient-to-br from-orange-500 to-amber-600 text-white shadow-orange-500/20' },
+    { label: 'With Errors', value: strategies.filter(s => s.status === 'Error').length, bg: 'bg-gradient-to-br from-red-500 to-rose-600 text-white shadow-red-500/20' },
   ];
+
+  const handleExportPDF = () => {
+    setIsExporting(true);
+    toast.success('Preparing Professional PDF Report...', { duration: 3000 });
+    
+    setTimeout(() => {
+      const doc = new jsPDF();
+      
+      // Header
+      doc.setFontSize(22);
+      doc.setTextColor(15, 23, 42);
+      doc.text('ApexQuant - Strategies Report', 14, 22);
+      
+      doc.setFontSize(11);
+      doc.setTextColor(100);
+      doc.text(`Generated on: ${new Date().toLocaleString()}`, 14, 30);
+      
+      // Summary Cards
+      doc.setFontSize(14);
+      doc.setTextColor(15, 23, 42);
+      doc.text('Strategies Summary', 14, 45);
+      
+      autoTable(doc, {
+        startY: 50,
+        head: [['Metric', 'Value']],
+        body: stats.map(s => [s.label, s.value.toString()]),
+        theme: 'grid',
+        headStyles: { fillColor: [59, 130, 246] }
+      });
+      
+      // Strategies Table
+      doc.text('Detailed Strategies List', 14, (doc as any).lastAutoTable.finalY + 15);
+      
+      autoTable(doc, {
+        startY: (doc as any).lastAutoTable.finalY + 20,
+        head: [['ID', 'Name', 'Instrument', 'Status', 'Created At']],
+        body: strategies.map(s => [
+          s.id.slice(0, 8) + '...',
+          s.name || 'Unnamed',
+          s.instrument || 'N/A',
+          s.status || 'Draft',
+          s.createdAt ? new Date(s.createdAt.toDate?.() || s.createdAt).toLocaleDateString() : 'Unknown'
+        ]),
+        theme: 'striped',
+        headStyles: { fillColor: [59, 130, 246] }
+      });
+      
+      doc.save(`ApexQuant_Strategies_${new Date().toISOString().split('T')[0]}.pdf`);
+      toast.success('Report downloaded successfully!');
+      setIsExporting(false);
+    }, 1500);
+  };
 
   return (
     <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -20 }} className="space-y-6">
@@ -70,16 +124,17 @@ export function StrategiesManagementTab() {
           <h2 className="text-2xl font-bold text-slate-800">Strategies Management</h2>
           <p className="text-sm text-slate-500">Monitor and manage all strategies created on the platform</p>
         </div>
-        <button className="px-4 py-2 bg-white border border-slate-200 text-slate-600 rounded-lg text-sm font-bold shadow-sm hover:bg-slate-50 transition-colors flex items-center gap-2">
-          <Download className="w-4 h-4" /> Export All
+        <button onClick={handleExportPDF} disabled={isExporting} className="px-4 py-2 bg-blue-600 text-white rounded-lg text-sm font-bold shadow-md hover:bg-blue-700 transition-colors flex items-center gap-2 disabled:opacity-70">
+          {isExporting ? <RefreshCw className="w-4 h-4 animate-spin" /> : <Download className="w-4 h-4" />} 
+          {isExporting ? 'Preparing PDF...' : 'Export All (PDF)'}
         </button>
       </div>
 
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         {stats.map((s, i) => (
-          <div key={i} className="bg-white rounded-xl p-4 border border-slate-200 shadow-sm">
-            <p className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-1">{s.label}</p>
-            <p className="text-2xl font-bold text-slate-800">{s.value}</p>
+          <div key={i} className={`rounded-xl p-5 shadow-lg relative overflow-hidden group ${s.bg}`}>
+            <p className="text-xs font-bold text-white/80 uppercase tracking-wider mb-1 relative z-10">{s.label}</p>
+            <p className="text-2xl font-bold text-white relative z-10">{s.value}</p>
           </div>
         ))}
       </div>
@@ -135,7 +190,7 @@ export function StrategiesManagementTab() {
                       </td>
                       <td className="px-6 py-4 text-right">
                         <div className="flex justify-end gap-1">
-                          <button className="p-1.5 text-slate-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg" title="View Details">
+                          <button onClick={() => toast.success(`Viewing detailed analytics for: ${s.name || s.id}`)} className="p-1.5 text-slate-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg" title="View Details">
                             <Eye className="w-4 h-4" />
                           </button>
                           {s.status === 'Live' && (

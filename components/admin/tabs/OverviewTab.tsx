@@ -8,12 +8,12 @@ const TradingViewChart = dynamic(() => import('@/components/dashboard/TradingVie
 
 export function OverviewTab() {
   const metrics = [
-    { label: 'Total Users', value: '4,285', change: '+12.5%', icon: Users, color: 'text-blue-600', bg: 'bg-blue-100' },
-    { label: 'Active (30d)', value: '1,842', change: '+5.2%', icon: Activity, color: 'text-emerald-600', bg: 'bg-emerald-100' },
-    { label: 'MRR (₹)', value: '₹12.5L', change: '+18.4%', icon: DollarSign, color: 'text-indigo-600', bg: 'bg-indigo-100' },
-    { label: 'Live Strategies', value: '845', change: '+4.1%', icon: PlayCircle, color: 'text-orange-600', bg: 'bg-orange-100' },
-    { label: 'Total Built', value: '12,405', change: '+22.1%', icon: Library, color: 'text-purple-600', bg: 'bg-purple-100' },
-    { label: 'System Health', value: '99.9%', change: 'Optimal', icon: Server, color: 'text-success', bg: 'bg-success/20' },
+    { label: 'Total Users', value: '4,285', change: '+12.5%', icon: Users, bg: 'bg-gradient-to-br from-blue-500 to-indigo-600 text-white shadow-blue-500/20', iconBg: 'bg-white/20 text-white', trendClass: 'bg-white/20 text-white border border-white/10' },
+    { label: 'Active (30d)', value: '1,842', change: '+5.2%', icon: Activity, bg: 'bg-gradient-to-br from-emerald-500 to-teal-500 text-white shadow-emerald-500/20', iconBg: 'bg-white/20 text-white', trendClass: 'bg-white/20 text-white border border-white/10' },
+    { label: 'MRR (₹)', value: '₹12.5L', change: '+18.4%', icon: DollarSign, bg: 'bg-gradient-to-br from-purple-500 to-fuchsia-600 text-white shadow-purple-500/20', iconBg: 'bg-white/20 text-white', trendClass: 'bg-white/20 text-white border border-white/10' },
+    { label: 'Live Strategies', value: '845', change: '+4.1%', icon: PlayCircle, bg: 'bg-gradient-to-br from-orange-500 to-amber-600 text-white shadow-orange-500/20', iconBg: 'bg-white/20 text-white', trendClass: 'bg-white/20 text-white border border-white/10' },
+    { label: 'Total Built', value: '12,405', change: '+22.1%', icon: Library, bg: 'bg-gradient-to-br from-rose-500 to-pink-600 text-white shadow-rose-500/20', iconBg: 'bg-white/20 text-white', trendClass: 'bg-white/20 text-white border border-white/10' },
+    { label: 'System Health', value: '99.9%', change: 'Optimal', icon: Server, bg: 'bg-gradient-to-br from-cyan-500 to-blue-500 text-white shadow-cyan-500/20', iconBg: 'bg-white/20 text-white', trendClass: 'bg-white/20 text-white border border-white/10' },
   ];
 
   const mockRevenueData = [
@@ -61,17 +61,17 @@ export function OverviewTab() {
 
       <motion.div variants={container} initial="hidden" animate="show" className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-4">
         {metrics.map((m, i) => (
-          <motion.div key={i} variants={item} className="bg-white rounded-xl p-5 border border-slate-200 shadow-sm hover:shadow-md transition-shadow group">
-            <div className="flex items-center justify-between mb-4">
-              <div className={`w-10 h-10 rounded-lg flex items-center justify-center ${m.bg} group-hover:scale-110 transition-transform`}>
-                <m.icon className={`w-5 h-5 ${m.color}`} />
+          <motion.div key={i} variants={item} className={`rounded-xl p-5 shadow-lg hover:shadow-xl transition-all group relative overflow-hidden ${m.bg}`}>
+            <div className="flex items-center justify-between mb-4 relative z-10">
+              <div className={`w-10 h-10 rounded-lg flex items-center justify-center ${m.iconBg} group-hover:scale-110 transition-transform`}>
+                <m.icon className="w-5 h-5" />
               </div>
-              <span className={`text-xs font-bold px-2 py-1 rounded-full ${i === 5 ? 'bg-success/10 text-success' : 'bg-success/10 text-success'}`}>
+              <span className={`text-xs font-bold px-2 py-1 rounded-full backdrop-blur-sm shadow-sm ${m.trendClass}`}>
                 {m.change}
               </span>
             </div>
-            <p className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-1">{m.label}</p>
-            <p className="text-2xl font-bold text-slate-800">{m.value}</p>
+            <p className="text-xs font-bold text-white/80 uppercase tracking-wider mb-1 relative z-10">{m.label}</p>
+            <p className="text-2xl font-bold text-white relative z-10">{m.value}</p>
           </motion.div>
         ))}
       </motion.div>

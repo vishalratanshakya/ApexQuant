@@ -30,7 +30,7 @@ export default function AdminDashboard() {
         <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
           <AdminHeader />
           
-          <main className="flex-1 overflow-y-auto p-6 lg:p-8 bg-slate-50/50 relative">
+          <main className="flex-1 overflow-y-auto p-6 lg:p-8 bg-gradient-to-br from-slate-50 via-blue-50/30 to-purple-50/30 relative">
             <div className="max-w-7xl mx-auto">
               <AnimatePresence mode="wait">
                 {activeTab === 'overview' && <OverviewTab key="overview" />}
