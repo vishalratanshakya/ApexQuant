@@ -140,7 +140,7 @@ export default function MarketScannerPage() {
                     </div>
                   </td>
                   <td className="px-6 py-4 text-right">
-                    <button className="opacity-0 group-hover:opacity-100 px-4 py-1.5 rounded-lg text-xs font-bold text-primary bg-primary/10 hover:bg-primary/20 transition-all">
+                    <button className="px-4 py-1.5 rounded-lg text-xs font-bold text-primary bg-primary/10 hover:bg-primary/20 transition-all">
                       Analyze
                     </button>
                   </td>
