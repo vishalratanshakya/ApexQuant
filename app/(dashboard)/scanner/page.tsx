@@ -17,18 +17,20 @@ export default function MarketScannerPage() {
   const filters = ['All', 'Breakouts', 'Reversals', 'Volume Surges', 'Options Setup'];
   const [opportunities, setOpportunities] = useState(mockOpportunities);
 
+  const [isModalOpen, setIsModalOpen] = useState(false);
+
   useEffect(() => {
     // Simulate real-time price updates
     const interval = setInterval(() => {
       setOpportunities(prev => prev.map(opp => {
-        // Only update NIFTY50 and BANKNIFTY for realism, slightly varying others
         const currentPrice = parseFloat(opp.price.replace(/,/g, ''));
         const change = (Math.random() - 0.5) * (currentPrice * 0.001); // 0.1% volatility
         const newPrice = currentPrice + change;
         
         return {
           ...opp,
-          price: newPrice.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
+          price: newPrice.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 }),
+          score: Math.max(1, Math.min(100, opp.score + (Math.random() > 0.5 ? 1 : -1) * Math.floor(Math.random() * 2))) // slightly vary score too
         };
       }));
     }, 2000);
@@ -36,8 +38,90 @@ export default function MarketScannerPage() {
     return () => clearInterval(interval);
   }, []);
 
+  const [sortConfig, setSortConfig] = useState<{key: string, direction: 'asc' | 'desc'} | null>(null);
+
+  const sortedOpportunities = [...opportunities].sort((a, b) => {
+    if (!sortConfig) return 0;
+    
+    let aVal: any = a[sortConfig.key as keyof typeof a];
+    let bVal: any = b[sortConfig.key as keyof typeof b];
+
+    if (sortConfig.key === 'price') {
+      aVal = parseFloat((aVal as string).replace(/,/g, ''));
+      bVal = parseFloat((bVal as string).replace(/,/g, ''));
+    }
+
+    if (aVal < bVal) return sortConfig.direction === 'asc' ? -1 : 1;
+    if (aVal > bVal) return sortConfig.direction === 'asc' ? 1 : -1;
+    return 0;
+  });
+
+  const handleSort = (key: string) => {
+    let direction: 'asc' | 'desc' = 'asc';
+    if (sortConfig && sortConfig.key === key && sortConfig.direction === 'asc') {
+      direction = 'desc';
+    }
+    setSortConfig({ key, direction });
+  };
+
   return (
     <div className="p-4 sm:p-8 max-w-7xl mx-auto w-full">
+      {/* Custom Scanner Modal */}
+      {isModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-sm animate-in fade-in">
+          <div className="bg-white rounded-2xl shadow-xl w-full max-w-lg border border-slate-200 overflow-hidden animate-in slide-in-from-bottom-4">
+            <div className="p-6 border-b border-slate-100 flex items-center justify-between">
+              <h2 className="text-xl font-bold text-slate-900">Create Custom Scanner</h2>
+              <button onClick={() => setIsModalOpen(false)} className="text-slate-400 hover:text-slate-600 transition-colors">
+                <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg>
+              </button>
+            </div>
+            <div className="p-6 space-y-4">
+              <div>
+                <label className="block text-xs font-semibold text-slate-500 mb-1.5 uppercase">Scanner Name</label>
+                <input type="text" placeholder="e.g. High Volume Breakouts" className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-primary focus:bg-white transition-colors" />
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-xs font-semibold text-slate-500 mb-1.5 uppercase">Instrument</label>
+                  <select className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-primary focus:bg-white transition-colors appearance-none">
+                    <option>NIFTY 50</option>
+                    <option>BANK NIFTY</option>
+                    <option>F&O Stocks</option>
+                  </select>
+                </div>
+                <div>
+                  <label className="block text-xs font-semibold text-slate-500 mb-1.5 uppercase">Timeframe</label>
+                  <select className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-primary focus:bg-white transition-colors appearance-none">
+                    <option>5 Minutes</option>
+                    <option>15 Minutes</option>
+                    <option>1 Hour</option>
+                    <option>1 Day</option>
+                  </select>
+                </div>
+              </div>
+              <div>
+                <label className="block text-xs font-semibold text-slate-500 mb-1.5 uppercase">Primary Condition</label>
+                <select className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-primary focus:bg-white transition-colors appearance-none">
+                  <option>RSI Crossed Above 70</option>
+                  <option>MACD Bullish Crossover</option>
+                  <option>Volume 2x Average</option>
+                  <option>Price Crosses VWAP</option>
+                </select>
+              </div>
+            </div>
+            <div className="p-6 border-t border-slate-100 flex justify-end gap-3 bg-slate-50">
+              <button onClick={() => setIsModalOpen(false)} className="px-5 py-2.5 rounded-xl text-sm font-semibold text-slate-600 hover:bg-slate-200 transition-colors">
+                Cancel
+              </button>
+              <button onClick={() => setIsModalOpen(false)} className="btn-primary px-5 py-2.5 rounded-xl text-sm font-semibold text-white shadow-md">
+                Save & Run Scanner
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Header */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
         <div>
@@ -48,7 +132,7 @@ export default function MarketScannerPage() {
           <p className="text-slate-500 mt-2">Discover real-time trading opportunities generated by your active scanners.</p>
         </div>
         
-        <button className="inline-flex items-center justify-center gap-2 px-6 py-3 rounded-xl text-sm font-bold text-white btn-primary shadow-lg shadow-primary/25 hover:shadow-primary/40 transition-all">
+        <button onClick={() => setIsModalOpen(true)} className="inline-flex items-center justify-center gap-2 px-6 py-3 rounded-xl text-sm font-bold text-white bg-gradient-to-r from-blue-500 to-primary shadow-lg shadow-primary/25 hover:shadow-primary/40 transition-all hover:-translate-y-0.5">
           <Filter className="w-4 h-4" />
           Create Custom Scanner
         </button>
@@ -114,16 +198,16 @@ export default function MarketScannerPage() {
           <table className="w-full text-left border-collapse">
             <thead>
               <tr className="bg-slate-50/50 border-b border-border">
-                <th className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider">Symbol</th>
-                <th className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider">Setup Type</th>
-                <th className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider">Timeframe</th>
-                <th className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider">Signal</th>
-                <th className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider">AI Score</th>
+                <th onClick={() => handleSort('symbol')} className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider cursor-pointer hover:bg-slate-100 transition-colors">Symbol {sortConfig?.key === 'symbol' ? (sortConfig.direction === 'asc' ? '↑' : '↓') : ''}</th>
+                <th onClick={() => handleSort('type')} className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider cursor-pointer hover:bg-slate-100 transition-colors">Setup Type {sortConfig?.key === 'type' ? (sortConfig.direction === 'asc' ? '↑' : '↓') : ''}</th>
+                <th onClick={() => handleSort('timeframe')} className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider cursor-pointer hover:bg-slate-100 transition-colors">Timeframe {sortConfig?.key === 'timeframe' ? (sortConfig.direction === 'asc' ? '↑' : '↓') : ''}</th>
+                <th onClick={() => handleSort('signal')} className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider cursor-pointer hover:bg-slate-100 transition-colors">Signal {sortConfig?.key === 'signal' ? (sortConfig.direction === 'asc' ? '↑' : '↓') : ''}</th>
+                <th onClick={() => handleSort('score')} className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider cursor-pointer hover:bg-slate-100 transition-colors">AI Score {sortConfig?.key === 'score' ? (sortConfig.direction === 'asc' ? '↑' : '↓') : ''}</th>
                 <th className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider text-right">Action</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-border">
-              {mockOpportunities.map((opp) => (
+              {sortedOpportunities.map((opp) => (
                 <tr key={opp.id} className="hover:bg-slate-50/50 transition-colors group cursor-pointer">
                   <td className="px-6 py-4">
                     <div className="font-bold text-slate-900">{opp.symbol}</div>
@@ -152,7 +236,7 @@ export default function MarketScannerPage() {
                     <div className="flex items-center gap-2">
                       <div className="w-16 h-2 bg-slate-100 rounded-full overflow-hidden">
                         <div 
-                          className={`h-full rounded-full ${opp.score >= 90 ? 'bg-success' : opp.score >= 80 ? 'bg-primary' : 'bg-warning'}`} 
+                          className={`h-full rounded-full transition-all duration-500 ${opp.score >= 90 ? 'bg-success' : opp.score >= 80 ? 'bg-primary' : 'bg-warning'}`} 
                           style={{ width: `${opp.score}%` }}
                         ></div>
                       </div>
