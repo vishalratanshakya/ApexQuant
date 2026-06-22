@@ -90,11 +90,11 @@ export default function Header() {
             {/* Dropdown Menu */}
             {dropdownOpen && (
               <div className="absolute right-0 mt-2 w-48 bg-white rounded-xl shadow-lg border border-border py-2 animate-in fade-in slide-in-from-top-2">
-                <Link href="/dashboard/profile" className="flex items-center gap-2 px-4 py-2 text-sm text-slate-600 hover:bg-slate-50 hover:text-text transition-colors">
+                <Link href="/profile" className="flex items-center gap-2 px-4 py-2 text-sm text-slate-600 hover:bg-slate-50 hover:text-text transition-colors">
                   <User className="w-4 h-4" />
                   Profile
                 </Link>
-                <Link href="/dashboard/profile" className="flex items-center gap-2 px-4 py-2 text-sm text-slate-600 hover:bg-slate-50 hover:text-text transition-colors">
+                <Link href="/profile" className="flex items-center gap-2 px-4 py-2 text-sm text-slate-600 hover:bg-slate-50 hover:text-text transition-colors">
                   <SettingsIcon className="w-4 h-4" />
                   Settings
                 </Link>
