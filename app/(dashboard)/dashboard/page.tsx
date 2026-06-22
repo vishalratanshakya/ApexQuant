@@ -2,33 +2,36 @@
 
 import { useAuth } from '@/hooks/useAuth';
 import { ArrowUpRight, TrendingUp, DollarSign, Activity, Settings } from 'lucide-react';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useMemo } from 'react';
 import { getStrategies, getBacktests, StrategyData, BacktestData } from '@/lib/db';
 import dynamic from 'next/dynamic';
 import Heatmap from '@/components/dashboard/Heatmap';
+import Link from 'next/link';
 
 // Dynamically import the chart so it only renders on the client side (avoids Next.js SSR errors with lightweight-charts)
 const TradingViewChart = dynamic(() => import('@/components/dashboard/TradingViewChart'), { ssr: false });
 
-const mockChartData = [
-  { time: '2023-09-01', value: 100000 },
-  { time: '2023-09-02', value: 101500 },
-  { time: '2023-09-03', value: 102200 },
-  { time: '2023-09-04', value: 101800 },
-  { time: '2023-09-05', value: 103500 },
-  { time: '2023-09-06', value: 105000 },
-  { time: '2023-09-07', value: 104500 },
-  { time: '2023-09-08', value: 106200 },
-  { time: '2023-09-09', value: 108500 },
-  { time: '2023-09-10', value: 107000 },
-  { time: '2023-09-11', value: 109500 },
-  { time: '2023-09-12', value: 112450 },
-];
+function generateEquityData(days: number) {
+  const data = [];
+  let currentValue = 100000;
+  const now = new Date();
+  
+  for (let i = days; i >= 0; i--) {
+    const time = new Date(now.getTime() - i * 24 * 60 * 60 * 1000);
+    currentValue = currentValue + (Math.random() - 0.42) * 1500; // Slight upward bias
+    data.push({
+      time: time.toISOString().split('T')[0],
+      value: Number(currentValue.toFixed(2)),
+    });
+  }
+  return data;
+}
 
 export default function DashboardPage() {
   const { user } = useAuth();
   const [strategies, setStrategies] = useState<StrategyData[]>([]);
   const [backtests, setBacktests] = useState<BacktestData[]>([]);
+  const [timeframe, setTimeframe] = useState('Last 90 Days');
 
   useEffect(() => {
     if (user) {
@@ -36,6 +39,15 @@ export default function DashboardPage() {
       getBacktests(user.uid).then(setBacktests);
     }
   }, [user]);
+
+  const chartData = useMemo(() => {
+    switch (timeframe) {
+      case 'Last 30 Days': return generateEquityData(30);
+      case 'Last 90 Days': return generateEquityData(90);
+      case 'All Time': return generateEquityData(365);
+      default: return generateEquityData(90);
+    }
+  }, [timeframe]);
 
   return (
     <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
@@ -82,14 +94,18 @@ export default function DashboardPage() {
                 <h2 className="text-base font-bold text-text">Equity Curve</h2>
                 <p className="text-xs text-slate-500 mt-0.5">Historical portfolio performance</p>
               </div>
-              <select className="text-sm bg-white border border-border rounded-lg px-3 py-1.5 focus:outline-none focus:border-primary font-medium text-slate-600 shadow-sm">
+              <select 
+                value={timeframe}
+                onChange={(e) => setTimeframe(e.target.value)}
+                className="text-sm bg-white border border-border rounded-lg px-3 py-1.5 focus:outline-none focus:border-primary font-medium text-slate-600 shadow-sm"
+              >
                 <option>Last 30 Days</option>
                 <option>Last 90 Days</option>
                 <option>All Time</option>
               </select>
             </div>
             <div className="h-[350px] w-full p-6">
-              <TradingViewChart data={mockChartData} />
+              <TradingViewChart data={chartData} />
             </div>
           </div>
 
@@ -109,7 +125,7 @@ export default function DashboardPage() {
           <div className="glass-card rounded-xl border border-border bg-white shadow-sm overflow-hidden">
             <div className="px-5 py-4 border-b border-border flex items-center justify-between bg-slate-50/50">
               <h2 className="text-base font-bold text-text">Active Strategies</h2>
-              <button className="text-xs font-semibold text-primary hover:underline">View All</button>
+              <Link href="/strategies" className="text-xs font-semibold text-primary hover:underline">View All</Link>
             </div>
             <div className="p-0">
               <table className="w-full text-left">
