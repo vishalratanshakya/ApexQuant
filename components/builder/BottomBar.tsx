@@ -7,6 +7,7 @@ import { useBuilder } from '@/contexts/BuilderContext';
 import { saveStrategy, createBacktest } from '@/lib/db';
 import { useAuth } from '@/hooks/useAuth';
 import { useState } from 'react';
+import PlanGuard from '../auth/PlanGuard';
 
 export default function BottomBar() {
   const router = useRouter();
@@ -74,7 +75,7 @@ export default function BottomBar() {
     try {
       const btId = await createBacktest(user.uid, currentStrategyId, name);
       toast.success('Initiating backtest...');
-      router.push(`/backtest/${btId}`);
+      router.push('/backtest');
     } catch (e: any) {
       console.error('Backtest Error:', e);
       toast.error(`Failed to start backtest: ${e.message}`);
@@ -144,13 +145,15 @@ export default function BottomBar() {
 
         <div className="w-px h-8 bg-border mx-2"></div>
 
-        <button 
-          onClick={handleDeploy}
-          className="px-6 py-2.5 rounded-xl text-sm font-bold text-primary bg-primary/10 border border-primary/20 hover:bg-primary/20 transition-colors flex items-center gap-2"
-        >
-          <Rocket className="w-4 h-4" />
-          Deploy Live
-        </button>
+        <PlanGuard requiresPro={true} featureName="Live Deployments" actionType="intercept">
+          <button 
+            onClick={handleDeploy}
+            className="px-6 py-2.5 rounded-xl text-sm font-bold text-primary bg-primary/10 border border-primary/20 hover:bg-primary/20 transition-colors flex items-center gap-2 w-full"
+          >
+            <Rocket className="w-4 h-4" />
+            Deploy Live
+          </button>
+        </PlanGuard>
       </div>
     </div>
   );

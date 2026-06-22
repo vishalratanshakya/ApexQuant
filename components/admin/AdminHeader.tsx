@@ -10,6 +10,7 @@ export function AdminHeader() {
   const notifRef = useRef<HTMLDivElement>(null);
 
   const [announcements, setAnnouncements] = useState<any[]>([]);
+  const [inquiries, setInquiries] = useState<any[]>([]);
   const [dismissed, setDismissed] = useState<string[]>([]);
 
   useEffect(() => {
@@ -58,16 +59,42 @@ export function AdminHeader() {
       }
     }, 10000); // Checks every 10 seconds while admin is online
 
+    // Listener for sales inquiries
+    const qInquiries = query(collection(db, 'sales_inquiries'), where('status', '==', 'pending'));
+    const unsubInquiries = onSnapshot(qInquiries, (snap) => {
+      const fetched: any[] = [];
+      snap.forEach(document => {
+        const data = document.data();
+        fetched.push({ 
+          id: document.id, 
+          isSalesInquiry: true,
+          title: `New Sales Inquiry: ${data.company || 'Unknown'}`,
+          content: `${data.fullName} is requesting Enterprise access. Volume: ${data.volume}`,
+          priority: 'Urgent',
+          sentAt: data.createdAt,
+          ...data
+        });
+      });
+      setInquiries(fetched);
+    });
+
     return () => {
       unsub();
+      unsubInquiries();
       clearInterval(interval);
     };
   }, [user]);
 
-  const unreadAnnouncements = announcements.filter(a => !dismissed.includes(a.id));
+  const allNotifications = [...announcements, ...inquiries].sort((a,b) => {
+    const da = a.sentAt?.toDate ? a.sentAt.toDate() : new Date(a.sentAt || 0);
+    const db = b.sentAt?.toDate ? b.sentAt.toDate() : new Date(b.sentAt || 0);
+    return db.getTime() - da.getTime();
+  });
+
+  const unreadAnnouncements = allNotifications.filter(a => !dismissed.includes(a.id));
 
   const handleMarkAllRead = () => {
-    const newDismissed = [...new Set([...dismissed, ...announcements.map(a => a.id)])];
+    const newDismissed = [...new Set([...dismissed, ...allNotifications.map(a => a.id)])];
     setDismissed(newDismissed);
     localStorage.setItem('dismissedAnnouncements', JSON.stringify(newDismissed));
   };
@@ -126,7 +153,7 @@ export function AdminHeader() {
                   <div className="p-8 text-center text-sm text-slate-500">No notifications</div>
                 ) : (
                   <div className="divide-y divide-slate-50">
-                    {announcements.map(a => {
+                    {allNotifications.map(a => {
                       const isUnread = !dismissed.includes(a.id);
                       return (
                         <div key={a.id} onClick={() => {

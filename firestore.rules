@@ -57,11 +57,10 @@ service cloud.firestore {
 
     // Notifications
     match /notifications/{notificationId} {
-      allow read, delete: if request.auth != null && resource.data.userId == request.auth.uid;
+      allow read, delete: if request.auth != null && (resource.data.userId == request.auth.uid || resource.data.userEmail == request.auth.token.email);
       allow create: if request.auth != null && request.resource.data.userId == request.auth.uid;
       allow update: if request.auth != null 
-                    && resource.data.userId == request.auth.uid 
-                    && request.resource.data.userId == request.auth.uid;
+                    && (resource.data.userId == request.auth.uid || resource.data.userEmail == request.auth.token.email);
     }
 
     // Portfolio & Market Scans
@@ -79,6 +78,11 @@ service cloud.firestore {
     }
     match /payments/{paymentId} {
       allow read: if request.auth != null && resource.data.userId == request.auth.uid;
+    }
+
+    // Sales Inquiries
+    match /sales_inquiries/{inquiryId} {
+      allow create: if true;
     }
 
     // Global Admin Access

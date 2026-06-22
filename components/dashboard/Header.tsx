@@ -1,6 +1,6 @@
 'use client';
 
-import { Bell, Search, Menu, TrendingUp, ChevronDown, User, Settings as SettingsIcon, LogOut, AlertCircle, Megaphone } from 'lucide-react';
+import { Bell, Search, Menu, TrendingUp, ChevronDown, User, Settings as SettingsIcon, LogOut, AlertCircle, Megaphone, MessageSquare } from 'lucide-react';
 import { useAuth } from '@/providers/AuthProvider';
 import Link from 'next/link';
 import { useState, useRef, useEffect } from 'react';
@@ -19,6 +19,7 @@ export default function Header() {
   const router = useRouter();
 
   const [announcements, setAnnouncements] = useState<any[]>([]);
+  const [personalNotifs, setPersonalNotifs] = useState<any[]>([]);
   const [dismissed, setDismissed] = useState<string[]>([]);
 
   useEffect(() => {
@@ -32,24 +33,54 @@ export default function Header() {
 
   useEffect(() => {
     if (!user) return;
-    const q = query(collection(db, 'announcements'), where('status', '==', 'Sent'));
-    const unsub = onSnapshot(q, (snap) => {
+    const qAnnouncements = query(collection(db, 'announcements'), where('status', '==', 'Sent'));
+    const unsubAnnouncements = onSnapshot(qAnnouncements, (snap) => {
       const fetched: any[] = [];
       snap.forEach(doc => fetched.push({ id: doc.id, ...doc.data() }));
-      fetched.sort((a,b) => {
-        const da = a.sentAt?.toDate ? a.sentAt.toDate() : new Date(a.sentAt || 0);
-        const db = b.sentAt?.toDate ? b.sentAt.toDate() : new Date(b.sentAt || 0);
-        return db.getTime() - da.getTime();
-      });
       setAnnouncements(fetched);
     });
-    return () => unsub();
+
+    if (!user.email) return () => unsubAnnouncements();
+
+    const qPersonalEmail = query(collection(db, 'notifications'), where('userEmail', '==', user.email));
+    const unsubEmail = onSnapshot(qPersonalEmail, (snap) => {
+      const fetched: any[] = [];
+      snap.forEach(doc => fetched.push({ id: doc.id, ...doc.data() }));
+      setPersonalNotifs(prev => {
+        const merged = [...prev.filter(p => p.userEmail !== user.email), ...fetched];
+        // deduplicate by id
+        return Array.from(new Map(merged.map(item => [item.id, item])).values());
+      });
+    });
+
+    const qPersonalId = query(collection(db, 'notifications'), where('userId', '==', user.uid));
+    const unsubId = onSnapshot(qPersonalId, (snap) => {
+      const fetched: any[] = [];
+      snap.forEach(doc => fetched.push({ id: doc.id, ...doc.data() }));
+      setPersonalNotifs(prev => {
+        const merged = [...prev.filter(p => p.userId !== user.uid), ...fetched];
+        // deduplicate by id
+        return Array.from(new Map(merged.map(item => [item.id, item])).values());
+      });
+    });
+
+    return () => {
+      unsubAnnouncements();
+      if (unsubEmail) unsubEmail();
+      if (unsubId) unsubId();
+    };
   }, [user]);
 
-  const unreadAnnouncements = announcements.filter(a => !dismissed.includes(a.id));
+  const allNotifications = [...announcements, ...personalNotifs].sort((a,b) => {
+    const da = a.createdAt ? new Date(a.createdAt) : (a.sentAt?.toDate ? a.sentAt.toDate() : new Date(a.sentAt || 0));
+    const dbTime = b.createdAt ? new Date(b.createdAt) : (b.sentAt?.toDate ? b.sentAt.toDate() : new Date(b.sentAt || 0));
+    return dbTime.getTime() - da.getTime();
+  });
+
+  const unreadAnnouncements = allNotifications.filter(a => !dismissed.includes(a.id) && !a.read);
 
   const handleMarkAllRead = () => {
-    const newDismissed = Array.from(new Set([...dismissed, ...announcements.map(a => a.id)]));
+    const newDismissed = Array.from(new Set([...dismissed, ...allNotifications.map(a => a.id)]));
     setDismissed(newDismissed);
     localStorage.setItem('dismissedAnnouncements', JSON.stringify(newDismissed));
   };
@@ -134,11 +165,11 @@ export default function Header() {
                   )}
                 </div>
                 <div className="overflow-y-auto flex-1 custom-scrollbar">
-                  {announcements.length === 0 ? (
+                  {allNotifications.length === 0 ? (
                     <div className="p-8 text-center text-sm text-slate-500">No notifications</div>
                   ) : (
                     <div className="divide-y divide-slate-100">
-                      {announcements.map(a => {
+                      {allNotifications.map(a => {
                         const isUnread = !dismissed.includes(a.id);
                         return (
                           <div key={a.id} onClick={() => {
@@ -150,13 +181,15 @@ export default function Header() {
                           }} className={`p-4 hover:bg-slate-50 cursor-pointer transition-colors ${isUnread ? 'bg-blue-50/30' : ''}`}>
                             <div className="flex gap-3">
                               <div className="shrink-0 mt-0.5">
-                                {a.priority === 'Urgent' ? <AlertCircle className="w-4 h-4 text-red-500" /> : <Megaphone className="w-4 h-4 text-blue-500" />}
+                                {a.type === 'support' ? <MessageSquare className="w-4 h-4 text-primary" /> : 
+                                 a.priority === 'Urgent' ? <AlertCircle className="w-4 h-4 text-red-500" /> : 
+                                 <Megaphone className="w-4 h-4 text-blue-500" />}
                               </div>
                               <div>
                                 <p className={`text-sm leading-tight ${isUnread ? 'font-bold text-slate-800' : 'font-medium text-slate-600'}`}>{a.title}</p>
-                                <p className="text-xs text-slate-500 mt-1.5 line-clamp-2">{a.content}</p>
+                                <p className="text-xs text-slate-500 mt-1.5 line-clamp-2">{a.message || a.content}</p>
                                 <p className="text-[10px] text-slate-400 mt-2">
-                                  {a.sentAt?.toDate ? a.sentAt.toDate().toLocaleString() : 'Just now'}
+                                  {a.createdAt ? new Date(a.createdAt).toLocaleString() : (a.sentAt?.toDate ? a.sentAt.toDate().toLocaleString() : 'Just now')}
                                 </p>
                               </div>
                             </div>

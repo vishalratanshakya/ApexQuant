@@ -10,7 +10,8 @@ import {
   orderBy,
   getDocs,
   getDoc,
-  where
+  where,
+  increment
 } from 'firebase/firestore';
 import { db } from './firebase';
 
@@ -62,7 +63,13 @@ export interface UserProfileData {
   location?: string;
   experience?: 'Beginner' | 'Intermediate' | 'Advanced' | '';
   bio?: string;
-  plan?: 'Free' | 'Pro' | 'Enterprise';
+  subscription?: {
+    plan: 'Free' | 'Pro' | 'Enterprise';
+    status: 'active' | 'expired' | 'trial';
+    expiresAt: any;
+    backtestCreditsUsed: number;
+    backtestCreditsLimit: number;
+  };
   role?: 'admin' | 'user';
   brokers?: {
     id: string;
@@ -77,6 +84,13 @@ export async function createUserProfile(userId: string, data: any) {
   const userRef = doc(db, 'users', userId);
   await setDoc(userRef, {
     ...data,
+    subscription: {
+      plan: 'Free',
+      status: 'active',
+      expiresAt: null,
+      backtestCreditsUsed: 0,
+      backtestCreditsLimit: 10,
+    },
     createdAt: serverTimestamp(),
     updatedAt: serverTimestamp()
   }, { merge: true });
@@ -181,6 +195,10 @@ export async function createBacktest(userId: string, strategyId: string, strateg
   // Update strategy status
   const strategyRef = doc(db, 'strategies', strategyId);
   await updateDoc(strategyRef, { status: 'Backtesting', updatedAt: serverTimestamp() });
+  
+  // Increment backtest usage
+  const userRef = doc(db, 'users', userId);
+  await updateDoc(userRef, { 'subscription.backtestCreditsUsed': increment(1) });
   
   return docRef.id;
 }

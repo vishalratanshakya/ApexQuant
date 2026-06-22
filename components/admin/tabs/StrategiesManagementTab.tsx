@@ -10,6 +10,7 @@ import { collection, onSnapshot, doc, updateDoc, deleteDoc } from 'firebase/fire
 import toast from 'react-hot-toast';
 import { jsPDF } from 'jspdf';
 import autoTable from 'jspdf-autotable';
+import { StrategyDetailsModal } from '../modals/StrategyDetailsModal';
 
 export function StrategiesManagementTab() {
   const [strategies, setStrategies] = useState<any[]>([]);
@@ -17,6 +18,7 @@ export function StrategiesManagementTab() {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
   const [isExporting, setIsExporting] = useState(false);
+  const [selectedStrategy, setSelectedStrategy] = useState<any>(null);
 
   useEffect(() => {
     const unsub = onSnapshot(collection(db, 'strategies'), (snap) => {
@@ -190,7 +192,7 @@ export function StrategiesManagementTab() {
                       </td>
                       <td className="px-6 py-4 text-right">
                         <div className="flex justify-end gap-1">
-                          <button onClick={() => toast.success(`Viewing detailed analytics for: ${s.name || s.id}`)} className="p-1.5 text-slate-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg" title="View Details">
+                          <button onClick={() => setSelectedStrategy(s)} className="p-1.5 text-slate-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg" title="View Details">
                             <Eye className="w-4 h-4" />
                           </button>
                           {s.status === 'Live' && (
@@ -211,6 +213,11 @@ export function StrategiesManagementTab() {
           </table>
         </div>
       </div>
+
+      <StrategyDetailsModal 
+        strategy={selectedStrategy} 
+        onClose={() => setSelectedStrategy(null)} 
+      />
     </motion.div>
   );
 }

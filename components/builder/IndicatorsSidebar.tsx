@@ -1,5 +1,6 @@
-import { Search, Plus, Hash } from 'lucide-react';
+import { Search, Plus, Hash, Lock } from 'lucide-react';
 import { toast } from 'react-hot-toast';
+import PlanGuard from '../auth/PlanGuard';
 
 const indicatorCategories = [
   {
@@ -19,6 +20,8 @@ const indicatorCategories = [
     items: ['OBV', 'Volume Oscillator', 'Chaikin Money Flow']
   }
 ];
+
+const advancedIndicators = ['VWAP', 'ADX', 'Parabolic SAR', 'Keltner Channels', 'Chaikin Money Flow', 'ROC'];
 
 export default function IndicatorsSidebar() {
   return (
@@ -41,18 +44,33 @@ export default function IndicatorsSidebar() {
             <div key={category.name}>
               <h4 className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-3">{category.name}</h4>
               <div className="space-y-1">
-                {category.items.map(item => (
-                  <button 
-                    key={item} 
-                    onClick={() => {
-                      toast.success(`Added ${item} to Entry Conditions`);
-                    }}
-                    className="w-full flex items-center justify-between px-3 py-2 rounded-lg hover:bg-slate-50 group transition-colors"
-                  >
-                    <span className="text-sm font-medium text-slate-600 group-hover:text-primary transition-colors">{item}</span>
-                    <Plus className="w-4 h-4 text-slate-300 opacity-0 group-hover:opacity-100 group-hover:text-primary transition-all" />
-                  </button>
-                ))}
+                {category.items.map(item => {
+                  const isAdvanced = advancedIndicators.includes(item);
+                  return (
+                    <PlanGuard 
+                      key={item}
+                      requiresPro={isAdvanced} 
+                      featureName={`${item} Indicator`}
+                      actionType="intercept"
+                      className="w-full"
+                    >
+                      <button 
+                        onClick={() => {
+                          if (!isAdvanced) { // Handled by PlanGuard intercept if advanced, but to be safe. Actually, PlanGuard intercept prevents onClick propagation? Wait, we can't easily stop propagation if we wrap the button, so we conditionally apply the real onClick inside or let PlanGuard handle it. Let's just conditionally handle the toast.
+                            toast.success(`Added ${item} to Entry Conditions`);
+                          }
+                        }}
+                        className="w-full flex items-center justify-between px-3 py-2 rounded-lg hover:bg-slate-50 group transition-colors"
+                      >
+                        <span className="text-sm font-medium text-slate-600 group-hover:text-primary transition-colors flex items-center gap-2">
+                          {item}
+                          {isAdvanced && <Lock className="w-3 h-3 text-slate-300" />}
+                        </span>
+                        <Plus className={`w-4 h-4 transition-all ${isAdvanced ? 'text-slate-200' : 'text-slate-300 opacity-0 group-hover:opacity-100 group-hover:text-primary'}`} />
+                      </button>
+                    </PlanGuard>
+                  );
+                })}
               </div>
             </div>
           ))}

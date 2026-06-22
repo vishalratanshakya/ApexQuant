@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import Navbar from '@/components/layout/Navbar';
 import Footer from '@/components/layout/Footer';
-import PricingCards from '@/components/pricing/PricingCards';
+import PremiumPricingCards from '@/components/pricing/PremiumPricingCards';
 import PricingComparison from '@/components/pricing/PricingComparison';
 import PricingFAQ from '@/components/pricing/PricingFAQ';
 
@@ -47,7 +47,7 @@ export default function PricingPage() {
             </div>
           </div>
 
-          <PricingCards isYearly={isYearly} />
+          <PremiumPricingCards isYearly={isYearly} />
           
           <div className="mt-32">
             <PricingComparison />

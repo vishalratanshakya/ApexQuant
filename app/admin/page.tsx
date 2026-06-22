@@ -18,6 +18,7 @@ import { AnnouncementsTab } from '@/components/admin/tabs/AnnouncementsTab';
 import { SystemLogsTab } from '@/components/admin/tabs/SystemLogsTab';
 import { SettingsTab } from '@/components/admin/tabs/SettingsTab';
 import { ReportsTab } from '@/components/admin/tabs/ReportsTab';
+import { NotificationsTab } from '@/components/admin/tabs/NotificationsTab';
 
 export default function AdminDashboard() {
   const [activeTab, setActiveTab] = useState('overview');
@@ -39,10 +40,11 @@ export default function AdminDashboard() {
                 {activeTab === 'deployments' && <LiveDeploymentsTab key="deployments" />}
                 {activeTab === 'billing' && <BillingRevenueTab key="billing" />}
                 
-                {activeTab === 'templates' && <TemplatesTab key="templates" />}
-                {activeTab === 'announcements' && <AnnouncementsTab key="announcements" />}
-                {activeTab === 'logs' && <SystemLogsTab key="logs" />}
-                {activeTab === 'settings' && <SettingsTab key="settings" />}
+                { activeTab === 'templates' && <TemplatesTab key="templates" /> }
+                { activeTab === 'announcements' && <AnnouncementsTab key="announcements" /> }
+                { activeTab === 'notifications' && <NotificationsTab key="notifications" /> }
+                { activeTab === 'logs' && <SystemLogsTab key="logs" /> }
+                { activeTab === 'settings' && <SettingsTab key="settings" /> }
                 {activeTab === 'reports' && <ReportsTab key="reports" />}
               </AnimatePresence>
             </div>

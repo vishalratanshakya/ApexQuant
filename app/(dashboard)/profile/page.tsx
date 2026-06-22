@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import Link from 'next/link';
 import { useAuth } from '@/providers/AuthProvider';
 import { getUserProfile, updateUserProfile, UserProfileData } from '@/lib/db';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -11,6 +12,9 @@ import {
 } from 'lucide-react';
 import { auth } from '@/lib/firebase';
 import { sendPasswordResetEmail } from 'firebase/auth';
+import { useSubscription } from '@/hooks/useSubscription';
+import UpgradePrompt from '@/components/auth/UpgradePrompt';
+import BrokerConnectModal from '@/components/brokers/BrokerConnectModal';
 
 const BROKERS = [
   { id: 'zerodha', name: 'Zerodha Kite', initial: 'Z', color: 'bg-orange-100 text-orange-600' },
@@ -27,7 +31,21 @@ export default function ProfilePage() {
   const [profile, setProfile] = useState<UserProfileData | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
+  const [showUpgradePrompt, setShowUpgradePrompt] = useState(false);
+  const [upgradeFeatureName, setUpgradeFeatureName] = useState('');
   
+  const [selectedBroker, setSelectedBroker] = useState<any | null>(null);
+  const [isBrokerModalOpen, setIsBrokerModalOpen] = useState(false);
+  
+  const { 
+    plan, 
+    canConnectBroker, 
+    brokerLimit, 
+    backtestCreditsUsed, 
+    backtestCreditsLimit,
+    maxActiveStrategies
+  } = useSubscription();
+
   // Form States
   const [formData, setFormData] = useState<Partial<UserProfileData>>({});
 
@@ -56,6 +74,16 @@ export default function ProfilePage() {
     }
   }, [user]);
 
+  // Handle URL tab parameter
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const tabParam = new URLSearchParams(window.location.search).get('tab');
+      if (tabParam && ['personal', 'brokers', 'billing', 'security'].includes(tabParam)) {
+        setActiveTab(tabParam as any);
+      }
+    }
+  }, []);
+
   const handleSaveProfile = async () => {
     if (!user) return;
     setIsSaving(true);
@@ -71,27 +99,31 @@ export default function ProfilePage() {
     }
   };
 
-  const handleConnectBroker = async (brokerId: string, brokerName: string) => {
+  const handleConnectBrokerInit = (broker: any) => {
     if (!user) return;
     const currentBrokers = profile?.brokers || [];
-    if (currentBrokers.find(b => b.id === brokerId)) {
+    if (currentBrokers.find(b => b.id === broker.id)) {
       toast.error('Broker is already connected');
       return;
     }
 
-    const loadToast = toast.loading(`Connecting to ${brokerName}...`);
-    // Mock OAuth delay
-    await new Promise(res => setTimeout(res, 1500));
-
-    const newBrokers = [...currentBrokers, { id: brokerId, name: brokerName, connectedAt: new Date().toISOString() }];
-    
-    try {
-      await updateUserProfile(user.uid, { brokers: newBrokers });
-      setProfile(prev => ({ ...prev, brokers: newBrokers } as any));
-      toast.success(`${brokerName} connected successfully!`, { id: loadToast });
-    } catch (error) {
-      toast.error('Failed to connect broker', { id: loadToast });
+    if (!canConnectBroker) {
+      setUpgradeFeatureName(`Connecting more than ${brokerLimit} broker${brokerLimit > 1 ? 's' : ''}`);
+      setShowUpgradePrompt(true);
+      return;
     }
+
+    setSelectedBroker(broker);
+    setIsBrokerModalOpen(true);
+  };
+
+  const handleConnectBrokerFinish = async (brokerId: string, brokerName: string, apiKey: string, apiSecret: string) => {
+    if (!user) throw new Error("No user");
+    const currentBrokers = profile?.brokers || [];
+    const newBrokers = [...currentBrokers, { id: brokerId, name: brokerName, apiKey, apiSecret, connectedAt: new Date().toISOString() }];
+    
+    await updateUserProfile(user.uid, { brokers: newBrokers });
+    setProfile(prev => ({ ...prev, brokers: newBrokers } as any));
   };
 
   const handleDisconnectBroker = async (brokerId: string) => {
@@ -293,7 +325,7 @@ export default function ProfilePage() {
                             Disconnect
                           </button>
                         ) : (
-                          <button onClick={() => handleConnectBroker(broker.id, broker.name)} className="text-xs font-bold text-primary bg-primary/10 hover:bg-primary/20 px-3 py-1.5 rounded-lg transition-colors">
+                          <button onClick={() => handleConnectBrokerInit(broker)} className="text-xs font-bold text-primary bg-primary/10 hover:bg-primary/20 px-3 py-1.5 rounded-lg transition-colors">
                             Connect
                           </button>
                         )}
@@ -321,29 +353,33 @@ export default function ProfilePage() {
                       Current Plan
                     </div>
                     <div className="text-3xl font-black font-display mb-1">
-                      {profile?.plan || 'Free'} Tier
+                      {plan} Tier
                     </div>
-                    <p className="text-slate-300 text-sm mb-6">Your plan automatically renews on Nov 15, 2026.</p>
+                    <p className="text-slate-300 text-sm mb-6">
+                      {plan === 'Free' ? 'Upgrade to scale your trading.' : 'Your plan automatically renews on Nov 15, 2026.'}
+                    </p>
                     
-                    <button className="px-5 py-2 bg-white text-slate-900 rounded-xl text-sm font-bold hover:bg-slate-50 transition-colors shadow-sm">
-                      Upgrade to Pro
-                    </button>
+                    {plan === 'Free' && (
+                      <Link href="/pricing" className="px-5 py-2 bg-white text-slate-900 rounded-xl text-sm font-bold hover:bg-slate-50 transition-colors shadow-sm inline-block">
+                        Upgrade to Pro
+                      </Link>
+                    )}
                   </div>
                 </div>
 
                 <div className="grid grid-cols-2 gap-4 pt-4 border-t border-border">
                   <div className="p-4 rounded-xl border border-border bg-surface">
-                    <h4 className="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1">Live Strategies</h4>
+                    <h4 className="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1">Active Strategies</h4>
                     <div className="flex items-end gap-2">
-                      <span className="text-2xl font-black text-text">1</span>
-                      <span className="text-sm text-slate-400 font-medium mb-1">/ 3 limit</span>
+                      <span className="text-2xl font-black text-text">?</span>
+                      <span className="text-sm text-slate-400 font-medium mb-1">/ {maxActiveStrategies} limit</span>
                     </div>
                   </div>
                   <div className="p-4 rounded-xl border border-border bg-surface">
                     <h4 className="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1">Backtests Used</h4>
                     <div className="flex items-end gap-2">
-                      <span className="text-2xl font-black text-text">14</span>
-                      <span className="text-sm text-slate-400 font-medium mb-1">/ 50 limit</span>
+                      <span className="text-2xl font-black text-text">{backtestCreditsUsed}</span>
+                      <span className="text-sm text-slate-400 font-medium mb-1">/ {backtestCreditsLimit === Infinity ? 'Unlimited' : backtestCreditsLimit}</span>
                     </div>
                   </div>
                 </div>
@@ -407,6 +443,18 @@ export default function ProfilePage() {
           </AnimatePresence>
         </div>
       </div>
+      <UpgradePrompt 
+        isOpen={showUpgradePrompt}
+        onClose={() => setShowUpgradePrompt(false)}
+        title="Pro Feature"
+        description={`${upgradeFeatureName} requires a Pro plan. Upgrade today to unlock your trading potential.`}
+      />
+      <BrokerConnectModal 
+        isOpen={isBrokerModalOpen}
+        onClose={() => setIsBrokerModalOpen(false)}
+        broker={selectedBroker}
+        onConnect={handleConnectBrokerFinish}
+      />
     </div>
   );
 }

@@ -3,6 +3,7 @@
 import { motion } from 'framer-motion';
 import Link from 'next/link';
 import { Check, Zap, ArrowRight } from 'lucide-react';
+import { useAuth } from '@/providers/AuthProvider';
 
 const plans = [
   {
@@ -69,6 +70,8 @@ const plans = [
 ];
 
 export default function PricingSection() {
+  const { user } = useAuth();
+  
   return (
     <section id="pricing" className="relative py-24 lg:py-32 overflow-hidden">
       <div className="absolute inset-0 bg-white" />
@@ -139,7 +142,7 @@ export default function PricingSection() {
               </div>
 
               <Link
-                href={plan.name === 'Starter' ? '/get-started' : '/login'}
+                href={user ? '/profile' : (plan.name === 'Starter' ? '/get-started' : '/login')}
                 id={`pricing-${plan.name.toLowerCase()}-btn`}
                 className={`flex items-center justify-center gap-2 w-full py-3 px-6 rounded-xl font-semibold text-sm mb-8 ${plan.ctaClass}`}
               >

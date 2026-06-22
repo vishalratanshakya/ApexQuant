@@ -71,7 +71,7 @@ export default function BacktestPage() {
                           </span>
                         </td>
                         <td className="px-5 py-4 text-right">
-                          <Link href="/analytics" className="text-xs font-semibold text-primary hover:underline">View Report</Link>
+                          <Link href={`/backtest/${bt.id}`} className="text-xs font-semibold text-primary hover:underline">View Report</Link>
                         </td>
                       </tr>
                     ))}

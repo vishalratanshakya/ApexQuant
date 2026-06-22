@@ -1,63 +1,60 @@
-import { Bell, AlertTriangle, CheckCircle, Info, Settings, Trash2 } from 'lucide-react';
+'use client';
+
+import { useState, useEffect } from 'react';
+import { Bell, AlertTriangle, CheckCircle, Info, Settings, Trash2, MessageSquare, Megaphone } from 'lucide-react';
+import { useAuth } from '@/providers/AuthProvider';
+import { db } from '@/lib/firebase';
+import { collection, query, where, onSnapshot } from 'firebase/firestore';
 
 export default function NotificationsPage() {
-  const notifications = [
-    {
-      id: 1,
-      type: 'alert',
-      title: 'Strategy Drawdown Alert',
-      message: 'NIFTY Breakout Pro has hit its maximum daily drawdown limit (-2.0%). Trading has been paused for this strategy.',
-      time: '10 minutes ago',
-      read: false,
-      icon: AlertTriangle,
-      color: 'text-orange-500',
-      bg: 'bg-orange-500/10'
-    },
-    {
-      id: 2,
-      type: 'success',
-      title: 'Take Profit Hit',
-      message: 'BankNifty Reversion bot successfully hit its take profit target at ₹45,200. +₹4,500 booked.',
-      time: '2 hours ago',
-      read: false,
-      icon: CheckCircle,
-      color: 'text-success',
-      bg: 'bg-success/10'
-    },
-    {
-      id: 3,
-      type: 'info',
-      title: 'System Update',
-      message: 'We have updated our backend execution servers to reduce slippage by 12% on NSE orders.',
-      time: 'Yesterday, 4:00 PM',
-      read: true,
-      icon: Info,
-      color: 'text-primary',
-      bg: 'bg-primary/10'
-    },
-    {
-      id: 4,
-      type: 'success',
-      title: 'Backtest Completed',
-      message: 'Your backtest for "Options Seller V2" on NIFTY50 has finished running. Check the analytics page for results.',
-      time: 'Yesterday, 11:30 AM',
-      read: true,
-      icon: CheckCircle,
-      color: 'text-success',
-      bg: 'bg-success/10'
-    },
-    {
-      id: 5,
-      type: 'alert',
-      title: 'Margin Warning',
-      message: 'Your account margin utilization is currently at 85%. Consider adding more funds to avoid square-offs.',
-      time: '2 days ago',
-      read: true,
-      icon: AlertTriangle,
-      color: 'text-orange-500',
-      bg: 'bg-orange-500/10'
-    }
-  ];
+  const { user } = useAuth();
+  const [personalNotifs, setPersonalNotifs] = useState<any[]>([]);
+  const [announcements, setAnnouncements] = useState<any[]>([]);
+
+  useEffect(() => {
+    if (!user) return;
+    
+    const qAnnouncements = query(collection(db, 'announcements'), where('status', '==', 'Sent'));
+    const unsubAnnouncements = onSnapshot(qAnnouncements, (snap) => {
+      const fetched: any[] = [];
+      snap.forEach(doc => fetched.push({ id: doc.id, ...doc.data() }));
+      setAnnouncements(fetched);
+    });
+
+    if (!user.email) return () => unsubAnnouncements();
+
+    const qPersonalEmail = query(collection(db, 'notifications'), where('userEmail', '==', user.email));
+    const unsubEmail = onSnapshot(qPersonalEmail, (snap) => {
+      const fetched: any[] = [];
+      snap.forEach(doc => fetched.push({ id: doc.id, ...doc.data() }));
+      setPersonalNotifs(prev => {
+        const merged = [...prev.filter(p => p.userEmail !== user.email), ...fetched];
+        return Array.from(new Map(merged.map(item => [item.id, item])).values());
+      });
+    });
+
+    const qPersonalId = query(collection(db, 'notifications'), where('userId', '==', user.uid));
+    const unsubId = onSnapshot(qPersonalId, (snap) => {
+      const fetched: any[] = [];
+      snap.forEach(doc => fetched.push({ id: doc.id, ...doc.data() }));
+      setPersonalNotifs(prev => {
+        const merged = [...prev.filter(p => p.userId !== user.uid), ...fetched];
+        return Array.from(new Map(merged.map(item => [item.id, item])).values());
+      });
+    });
+
+    return () => {
+      unsubAnnouncements();
+      if (unsubEmail) unsubEmail();
+      if (unsubId) unsubId();
+    };
+  }, [user]);
+
+  const allNotifications = [...announcements, ...personalNotifs].sort((a,b) => {
+    const da = a.createdAt ? new Date(a.createdAt) : (a.sentAt?.toDate ? a.sentAt.toDate() : new Date(a.sentAt || 0));
+    const dbTime = b.createdAt ? new Date(b.createdAt) : (b.sentAt?.toDate ? b.sentAt.toDate() : new Date(b.sentAt || 0));
+    return dbTime.getTime() - da.getTime();
+  });
 
   return (
     <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500 pb-24 max-w-4xl mx-auto">
@@ -83,34 +80,55 @@ export default function NotificationsPage() {
           <button className="text-xs font-semibold text-primary hover:underline">Mark all as read</button>
         </div>
         <div className="divide-y divide-slate-100">
-          {notifications.map((notification) => (
-            <div 
-              key={notification.id} 
-              className={`p-5 flex gap-4 transition-colors hover:bg-slate-50/80 group ${!notification.read ? 'bg-primary/[0.02]' : ''}`}
-            >
-              <div className={`w-10 h-10 rounded-xl ${notification.bg} flex items-center justify-center shrink-0`}>
-                <notification.icon className={`w-5 h-5 ${notification.color}`} />
-              </div>
-              <div className="flex-1 min-w-0">
-                <div className="flex items-start justify-between gap-2 mb-1">
-                  <h3 className={`text-sm font-bold truncate ${!notification.read ? 'text-text' : 'text-slate-700'}`}>
-                    {notification.title}
-                  </h3>
-                  <span className="text-xs font-medium text-slate-400 whitespace-nowrap">
-                    {notification.time}
-                  </span>
+          {allNotifications.length === 0 && (
+            <div className="p-12 text-center text-slate-500 font-medium">You have no new notifications.</div>
+          )}
+          {allNotifications.map((notification) => {
+            let Icon = Info;
+            let color = 'text-primary';
+            let bg = 'bg-primary/10';
+
+            if (notification.type === 'support') {
+              Icon = MessageSquare;
+              color = 'text-blue-600';
+              bg = 'bg-blue-600/10';
+            } else if (notification.priority === 'Urgent') {
+              Icon = AlertTriangle;
+              color = 'text-red-500';
+              bg = 'bg-red-500/10';
+            } else if (notification.type === 'announcement' || notification.status === 'Sent') {
+              Icon = Megaphone;
+            }
+
+            return (
+              <div 
+                key={notification.id} 
+                className={`p-5 flex gap-4 transition-colors hover:bg-slate-50/80 group ${!notification.read ? 'bg-primary/[0.02]' : ''}`}
+              >
+                <div className={`w-10 h-10 rounded-xl ${bg} flex items-center justify-center shrink-0`}>
+                  <Icon className={`w-5 h-5 ${color}`} />
                 </div>
-                <p className={`text-sm leading-relaxed ${!notification.read ? 'text-slate-600 font-medium' : 'text-slate-500'}`}>
-                  {notification.message}
-                </p>
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-start justify-between gap-2 mb-1">
+                    <h3 className={`text-sm font-bold truncate ${!notification.read ? 'text-text' : 'text-slate-700'}`}>
+                      {notification.title}
+                    </h3>
+                    <span className="text-xs font-medium text-slate-400 whitespace-nowrap">
+                      {notification.createdAt ? new Date(notification.createdAt).toLocaleString() : (notification.sentAt?.toDate ? notification.sentAt.toDate().toLocaleString() : 'Just now')}
+                    </span>
+                  </div>
+                  <p className={`text-sm leading-relaxed ${!notification.read ? 'text-slate-600 font-medium' : 'text-slate-500'}`}>
+                    {notification.message || notification.content}
+                  </p>
+                </div>
+                <div className="opacity-0 group-hover:opacity-100 transition-opacity flex items-center shrink-0">
+                  <button className="p-2 text-slate-400 hover:text-loss rounded-lg hover:bg-loss/10 transition-colors">
+                    <Trash2 className="w-4 h-4" />
+                  </button>
+                </div>
               </div>
-              <div className="opacity-0 group-hover:opacity-100 transition-opacity flex items-center shrink-0">
-                <button className="p-2 text-slate-400 hover:text-loss rounded-lg hover:bg-loss/10 transition-colors">
-                  <Trash2 className="w-4 h-4" />
-                </button>
-              </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
       </div>
     </div>

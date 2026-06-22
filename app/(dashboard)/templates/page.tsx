@@ -9,7 +9,9 @@ import { mockTemplates, StrategyTemplate, TemplateCategory, TemplateDifficulty, 
 import { TemplateCard } from '@/components/templates/TemplateCard';
 import { TemplateFilters } from '@/components/templates/TemplateFilters';
 import { TemplatePreviewModal } from '@/components/templates/TemplatePreviewModal';
-import { Library, Flame } from 'lucide-react';
+import { Library, Flame, Lock } from 'lucide-react';
+import PlanGuard from '@/components/auth/PlanGuard';
+import Link from 'next/link';
 
 export default function StrategyTemplatesPage() {
   const router = useRouter();
@@ -75,8 +77,27 @@ export default function StrategyTemplatesPage() {
   const trendingTemplates = filteredTemplates.filter(t => t.trending);
   const regularTemplates = filteredTemplates.filter(t => !t.trending);
 
+  const freeFallback = (
+    <div className="flex flex-col items-center justify-center py-24 text-center px-4">
+      <div className="w-20 h-20 bg-primary/10 rounded-full flex items-center justify-center mb-6 relative">
+        <Library className="w-10 h-10 text-primary" />
+        <div className="absolute -bottom-1 -right-1 w-8 h-8 bg-slate-900 rounded-full flex items-center justify-center border-2 border-white">
+          <Lock className="w-4 h-4 text-white" />
+        </div>
+      </div>
+      <h2 className="text-3xl font-black text-slate-900 mb-4 tracking-tight">Strategy Marketplace is a Pro Feature</h2>
+      <p className="text-lg text-slate-500 mb-8 max-w-md mx-auto">
+        Upgrade to our Pro plan to access and clone premium, high-performance trading templates directly to your portfolio.
+      </p>
+      <Link href="/pricing" className="btn-primary px-8 py-3.5 rounded-xl font-bold text-white shadow-lg shadow-primary/30 hover:shadow-primary/40 transition-all">
+        View Pricing Plans
+      </Link>
+    </div>
+  );
+
   return (
-    <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500 pb-24">
+    <PlanGuard requiresPro={true} actionType="hide" fallback={freeFallback}>
+      <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500 pb-24">
       {/* Header section */}
       <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
         <div>
@@ -160,6 +181,7 @@ export default function StrategyTemplatesPage() {
         onClose={() => setPreviewTemplate(null)} 
         onUseTemplate={handleUseTemplate} 
       />
-    </div>
+      </div>
+    </PlanGuard>
   );
 }

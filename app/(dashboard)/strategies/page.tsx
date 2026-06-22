@@ -1,11 +1,16 @@
 'use client';
 
 import { useStrategies } from '@/hooks/useStrategies';
+import { useSubscription } from '@/hooks/useSubscription';
 import Link from 'next/link';
-import { Plus, Layers, Play, Settings, Clock, Activity, Loader2 } from 'lucide-react';
+import { Plus, Layers, Play, Settings, Clock, Activity, Loader2, Lock } from 'lucide-react';
+import PlanGuard from '@/components/auth/PlanGuard';
 
 export default function StrategiesPage() {
-  const { strategies, loading } = useStrategies();
+  const { strategies, loading: strategiesLoading } = useStrategies();
+  const { maxSavedStrategies, loading: subLoading } = useSubscription();
+
+  const loading = strategiesLoading || subLoading;
 
   const getStatusColor = (status: string) => {
     switch (status) {
@@ -27,13 +32,22 @@ export default function StrategiesPage() {
           </h1>
           <p className="text-slate-500 mt-2">Manage, backtest, and deploy your algorithmic trading strategies.</p>
         </div>
-        <Link 
-          href="/builder"
-          className="inline-flex items-center justify-center gap-2 px-6 py-3 rounded-xl text-sm font-bold text-white btn-primary shadow-lg shadow-primary/25 hover:shadow-primary/40 transition-all w-full sm:w-auto"
-        >
-          <Plus className="w-5 h-5" />
-          Create New Strategy
-        </Link>
+        {strategies.length >= maxSavedStrategies ? (
+          <PlanGuard requiresPro={true} featureName="Unlimited Strategies" actionType="intercept">
+            <button className="inline-flex items-center justify-center gap-2 px-6 py-3 rounded-xl text-sm font-bold text-white bg-slate-400 cursor-not-allowed shadow-none w-full sm:w-auto">
+              <Lock className="w-4 h-4" />
+              Limit Reached ({maxSavedStrategies}/{maxSavedStrategies})
+            </button>
+          </PlanGuard>
+        ) : (
+          <Link 
+            href="/builder"
+            className="inline-flex items-center justify-center gap-2 px-6 py-3 rounded-xl text-sm font-bold text-white btn-primary shadow-lg shadow-primary/25 hover:shadow-primary/40 transition-all w-full sm:w-auto"
+          >
+            <Plus className="w-5 h-5" />
+            Create New Strategy
+          </Link>
+        )}
       </div>
 
       {loading ? (
@@ -107,7 +121,7 @@ export default function StrategiesPage() {
                       </div>
                     </td>
                     <td className="px-6 py-4 text-right">
-                      <div className="flex items-center justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                      <div className="flex items-center justify-end gap-2 transition-opacity">
                         <Link 
                           href={`/builder`}
                           className="p-2 text-slate-400 hover:text-primary hover:bg-primary/10 rounded-lg transition-colors"
