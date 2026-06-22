@@ -24,7 +24,7 @@ export default function StrategyTemplatesPage() {
     // Simulate cloning process delay
     setTimeout(() => {
       toast.success('Strategy cloned successfully!');
-      router.push(`/dashboard/builder?templateId=${template.id}`);
+      router.push(`/builder?templateId=${template.id}`);
     }, 800);
   };
 
