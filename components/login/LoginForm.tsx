@@ -40,6 +40,12 @@ export default function LoginForm() {
       router.push('/');
     } catch (err: unknown) {
       const errorMessage = err instanceof Error ? err.message : 'Google sign-in failed. Please try again.';
+      
+      // User simply closed the Google popup, don't show a scary red error
+      if (errorMessage.includes('popup-closed-by-user')) {
+        return;
+      }
+
       setError(errorMessage);
       toast.error(errorMessage);
     } finally {
