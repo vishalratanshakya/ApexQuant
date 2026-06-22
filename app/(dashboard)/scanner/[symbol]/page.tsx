@@ -51,19 +51,40 @@ export default function SymbolAnalysisPage({ params }: { params: { symbol: strin
           </h1>
         </div>
         
-        <div className="flex gap-3">
-          <Link href={`/builder?symbol=${symbol}`} className="inline-flex items-center justify-center gap-2 px-6 py-2.5 rounded-xl text-sm font-bold text-slate-700 bg-white border border-slate-200 hover:bg-slate-50 transition-all shadow-sm">
-            <Settings className="w-4 h-4" /> Build Strategy
-          </Link>
-          <button className="inline-flex items-center justify-center gap-2 px-6 py-2.5 rounded-xl text-sm font-bold text-white btn-primary shadow-lg shadow-primary/25 hover:shadow-primary/40 transition-all">
-            <Zap className="w-4 h-4" /> Trade Now
+        <div className="flex flex-wrap gap-3">
+          <button className="inline-flex items-center justify-center gap-2 px-6 py-2.5 rounded-xl text-sm font-bold text-slate-700 bg-white border border-slate-200 hover:bg-slate-50 transition-all shadow-sm">
+            <Activity className="w-4 h-4" /> Add to Watchlist
           </button>
+          <Link href={`/builder?symbol=${symbol}`} className="inline-flex items-center justify-center gap-2 px-6 py-2.5 rounded-xl text-sm font-bold text-white btn-primary shadow-lg shadow-primary/25 hover:shadow-primary/40 transition-all">
+            <Settings className="w-4 h-4" /> Create Strategy
+          </Link>
         </div>
       </div>
 
       <div className="grid lg:grid-cols-3 gap-6">
         {/* Main Chart Section */}
         <div className="lg:col-span-2 space-y-6">
+          
+          {/* Performance Metrics Cards */}
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+            <div className="bg-white rounded-xl border border-border p-4 shadow-sm text-center">
+              <p className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-1">Win Rate</p>
+              <p className="text-lg font-black text-success">68.4%</p>
+            </div>
+            <div className="bg-white rounded-xl border border-border p-4 shadow-sm text-center">
+              <p className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-1">Profit Factor</p>
+              <p className="text-lg font-black text-slate-900">1.82</p>
+            </div>
+            <div className="bg-white rounded-xl border border-border p-4 shadow-sm text-center">
+              <p className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-1">Max Drawdown</p>
+              <p className="text-lg font-black text-loss">-4.2%</p>
+            </div>
+            <div className="bg-white rounded-xl border border-border p-4 shadow-sm text-center">
+              <p className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-1">Sharpe Ratio</p>
+              <p className="text-lg font-black text-primary">2.1</p>
+            </div>
+          </div>
+
           <div className="bg-white rounded-2xl border border-border p-6 shadow-sm">
             <div className="flex items-center justify-between mb-6">
               <h2 className="text-lg font-bold text-slate-900 flex items-center gap-2">

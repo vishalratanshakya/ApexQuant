@@ -15,6 +15,26 @@ const mockOpportunities = [
 export default function MarketScannerPage() {
   const [activeFilter, setActiveFilter] = useState('All');
   const filters = ['All', 'Breakouts', 'Reversals', 'Volume Surges', 'Options Setup'];
+  const [opportunities, setOpportunities] = useState(mockOpportunities);
+
+  useEffect(() => {
+    // Simulate real-time price updates
+    const interval = setInterval(() => {
+      setOpportunities(prev => prev.map(opp => {
+        // Only update NIFTY50 and BANKNIFTY for realism, slightly varying others
+        const currentPrice = parseFloat(opp.price.replace(/,/g, ''));
+        const change = (Math.random() - 0.5) * (currentPrice * 0.001); // 0.1% volatility
+        const newPrice = currentPrice + change;
+        
+        return {
+          ...opp,
+          price: newPrice.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
+        };
+      }));
+    }, 2000);
+
+    return () => clearInterval(interval);
+  }, []);
 
   return (
     <div className="p-4 sm:p-8 max-w-7xl mx-auto w-full">
