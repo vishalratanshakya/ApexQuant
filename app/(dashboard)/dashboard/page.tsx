@@ -146,9 +146,9 @@ export default function DashboardPage() {
                       <td className={`px-5 py-4 text-sm font-bold text-right text-slate-400`}>
                         -
                       </td>
-                      <td className="px-5 py-4 text-right opacity-0 group-hover:opacity-100 transition-opacity">
+                      <td className="px-5 py-4 text-right">
                         <div className="flex items-center justify-end gap-3">
-                          <button className="text-xs font-semibold text-slate-500 hover:text-primary">Edit</button>
+                          <button className="text-xs font-semibold text-slate-500 hover:text-primary transition-colors">Edit</button>
                         </div>
                       </td>
                     </tr>
