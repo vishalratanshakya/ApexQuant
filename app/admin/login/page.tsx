@@ -55,8 +55,19 @@ export default function AdminLoginPage() {
     
     setIsLoading(true);
     try {
-      const loggedInUser = await signInWithEmail(email, password);
-      await handlePostLogin(loggedInUser.uid, loggedInUser.email);
+      let result;
+      try {
+        result = await signInWithEmail(email, password);
+      } catch (err: any) {
+        // Auto-create the admin account if it doesn't exist
+        if (email === 'admin@gmail.com' && (err.code === 'auth/user-not-found' || err.code === 'auth/invalid-credential' || err.message?.includes('invalid-credential'))) {
+          const { signUpWithEmail } = await import('@/lib/auth');
+          result = await signUpWithEmail(email, password);
+        } else {
+          throw err;
+        }
+      }
+      await handlePostLogin(result.user.uid, result.user.email);
     } catch (error: any) {
       setIsLoading(false);
       toast.error(error.message || 'Failed to login');
@@ -66,8 +77,8 @@ export default function AdminLoginPage() {
   const handleGoogleLogin = async () => {
     setIsLoading(true);
     try {
-      const loggedInUser = await signInWithGoogle();
-      await handlePostLogin(loggedInUser.uid, loggedInUser.email);
+      const result = await signInWithGoogle();
+      await handlePostLogin(result.user.uid, result.user.email);
     } catch (error: any) {
       setIsLoading(false);
       if (error.code !== 'auth/popup-closed-by-user') {
