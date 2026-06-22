@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { ScanEye, Filter, Search, TrendingUp, TrendingDown, ArrowRight, Activity, Lock } from 'lucide-react';
 import Link from 'next/link';
 
