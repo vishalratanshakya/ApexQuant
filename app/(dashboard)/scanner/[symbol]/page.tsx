@@ -2,20 +2,36 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { ArrowLeft, TrendingUp, TrendingDown, Activity, Settings, Zap, ShieldAlert, BarChart2 } from 'lucide-react';
+import { ArrowLeft, TrendingUp, TrendingDown, Activity, Settings, Zap, ShieldAlert, BarChart2, Check } from 'lucide-react';
 import TradingViewChart from '@/components/dashboard/TradingViewChart';
 
 // Generate some realistic looking mock chart data
-function generateMockData() {
+function generateMockData(timeframe: string) {
   const data = [];
   let currentValue = 1000;
   const now = new Date();
   
-  for (let i = 100; i >= 0; i--) {
-    const time = new Date(now.getTime() - i * 24 * 60 * 60 * 1000);
+  let points = 30;
+  let intervalMs = 24 * 60 * 60 * 1000;
+
+  switch(timeframe) {
+    case '1D': points = 48; intervalMs = 30 * 60 * 1000; break; // 30 min intervals
+    case '1W': points = 7 * 24; intervalMs = 60 * 60 * 1000; break; // hourly
+    case '1M': points = 30; intervalMs = 24 * 60 * 60 * 1000; break; // daily
+    case '3M': points = 90; intervalMs = 24 * 60 * 60 * 1000; break; // daily
+    case '1Y': points = 365; intervalMs = 24 * 60 * 60 * 1000; break; // daily
+  }
+
+  for (let i = points; i >= 0; i--) {
+    const time = new Date(now.getTime() - i * intervalMs);
     currentValue = currentValue + (Math.random() - 0.45) * 50;
+    
+    const timeValue = intervalMs < 24 * 60 * 60 * 1000 
+      ? Math.floor(time.getTime() / 1000) 
+      : time.toISOString().split('T')[0];
+
     data.push({
-      time: time.toISOString().split('T')[0],
+      time: timeValue as any,
       value: Number(currentValue.toFixed(2)),
     });
   }
@@ -26,11 +42,13 @@ export default function SymbolAnalysisPage({ params }: { params: { symbol: strin
   const symbol = decodeURIComponent(params.symbol);
   const [chartData, setChartData] = useState<{ time: string; value: number }[]>([]);
   const [isClient, setIsClient] = useState(false);
+  const [timeframe, setTimeframe] = useState('1M');
+  const [inWatchlist, setInWatchlist] = useState(false);
 
   useEffect(() => {
     setIsClient(true);
-    setChartData(generateMockData());
-  }, []);
+    setChartData(generateMockData(timeframe));
+  }, [timeframe]);
 
   if (!isClient) return null; // Prevent hydration mismatch on charts
 
@@ -52,8 +70,16 @@ export default function SymbolAnalysisPage({ params }: { params: { symbol: strin
         </div>
         
         <div className="flex flex-wrap gap-3">
-          <button className="inline-flex items-center justify-center gap-2 px-6 py-2.5 rounded-xl text-sm font-bold text-slate-700 bg-white border border-slate-200 hover:bg-slate-50 transition-all shadow-sm">
-            <Activity className="w-4 h-4" /> Add to Watchlist
+          <button 
+            onClick={() => setInWatchlist(!inWatchlist)}
+            className={`inline-flex items-center justify-center gap-2 px-6 py-2.5 rounded-xl text-sm font-bold transition-all shadow-sm border ${
+              inWatchlist 
+                ? 'bg-success/10 text-success border-success/20 hover:bg-success/20'
+                : 'text-slate-700 bg-white border-slate-200 hover:bg-slate-50'
+            }`}
+          >
+            {inWatchlist ? <Check className="w-4 h-4" /> : <Activity className="w-4 h-4" />}
+            {inWatchlist ? 'Added to Watchlist' : 'Add to Watchlist'}
           </button>
           <Link href={`/builder?symbol=${symbol}`} className="inline-flex items-center justify-center gap-2 px-6 py-2.5 rounded-xl text-sm font-bold text-white btn-primary shadow-lg shadow-primary/25 hover:shadow-primary/40 transition-all">
             <Settings className="w-4 h-4" /> Create Strategy
@@ -92,7 +118,11 @@ export default function SymbolAnalysisPage({ params }: { params: { symbol: strin
               </h2>
               <div className="flex bg-slate-100 rounded-lg p-1">
                 {['1D', '1W', '1M', '3M', '1Y'].map(tf => (
-                  <button key={tf} className={`px-3 py-1 text-xs font-bold rounded-md ${tf === '1M' ? 'bg-white text-primary shadow-sm' : 'text-slate-500 hover:text-slate-900'}`}>
+                  <button 
+                    key={tf} 
+                    onClick={() => setTimeframe(tf)}
+                    className={`px-3 py-1 text-xs font-bold rounded-md transition-colors ${tf === timeframe ? 'bg-white text-primary shadow-sm' : 'text-slate-500 hover:text-slate-900'}`}
+                  >
                     {tf}
                   </button>
                 ))}
