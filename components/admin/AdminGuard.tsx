@@ -23,7 +23,7 @@ export default function AdminGuard({ children }: { children: React.ReactNode }) 
 
     const checkAdmin = async () => {
       try {
-        const hasAccess = await verifyAdminAccess(user.uid);
+        const hasAccess = await verifyAdminAccess(user.uid, user.email);
         if (hasAccess) {
           setIsAdmin(true);
         } else {

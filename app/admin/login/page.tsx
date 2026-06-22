@@ -21,7 +21,7 @@ export default function AdminLoginPage() {
   // If already logged in and verified as admin, redirect
   useEffect(() => {
     if (user && !authLoading) {
-      verifyAdminAccess(user.uid).then(isAdmin => {
+      verifyAdminAccess(user.uid, user.email).then(isAdmin => {
         if (isAdmin) {
           router.push('/admin');
         }
@@ -29,10 +29,10 @@ export default function AdminLoginPage() {
     }
   }, [user, authLoading, router]);
 
-  const handlePostLogin = async (uid: string) => {
+  const handlePostLogin = async (uid: string, userEmail?: string | null) => {
     setIsLoading(true);
     try {
-      const isAdmin = await verifyAdminAccess(uid);
+      const isAdmin = await verifyAdminAccess(uid, userEmail);
       if (isAdmin) {
         toast.success('Welcome back, Admin.');
         router.push('/admin');
@@ -56,7 +56,7 @@ export default function AdminLoginPage() {
     setIsLoading(true);
     try {
       const loggedInUser = await signInWithEmail(email, password);
-      await handlePostLogin(loggedInUser.uid);
+      await handlePostLogin(loggedInUser.uid, loggedInUser.email);
     } catch (error: any) {
       setIsLoading(false);
       toast.error(error.message || 'Failed to login');
@@ -67,7 +67,7 @@ export default function AdminLoginPage() {
     setIsLoading(true);
     try {
       const loggedInUser = await signInWithGoogle();
-      await handlePostLogin(loggedInUser.uid);
+      await handlePostLogin(loggedInUser.uid, loggedInUser.email);
     } catch (error: any) {
       setIsLoading(false);
       if (error.code !== 'auth/popup-closed-by-user') {
