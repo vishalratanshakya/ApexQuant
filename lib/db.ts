@@ -55,6 +55,23 @@ export interface LiveStrategyData {
 // ---------------------------------------------------------
 // USER PROFILES
 // ---------------------------------------------------------
+export interface UserProfileData {
+  displayName?: string;
+  email?: string;
+  phone?: string;
+  location?: string;
+  experience?: 'Beginner' | 'Intermediate' | 'Advanced' | '';
+  bio?: string;
+  plan?: 'Free' | 'Pro' | 'Enterprise';
+  brokers?: {
+    id: string;
+    name: string;
+    connectedAt: any;
+  }[];
+  createdAt?: any;
+  updatedAt?: any;
+}
+
 export async function createUserProfile(userId: string, data: any) {
   const userRef = doc(db, 'users', userId);
   await setDoc(userRef, {
@@ -64,10 +81,18 @@ export async function createUserProfile(userId: string, data: any) {
   }, { merge: true });
 }
 
-export async function getUserProfile(userId: string) {
+export async function getUserProfile(userId: string): Promise<UserProfileData | null> {
   const userRef = doc(db, 'users', userId);
   const snap = await getDoc(userRef);
-  return snap.exists() ? snap.data() : null;
+  return snap.exists() ? snap.data() as UserProfileData : null;
+}
+
+export async function updateUserProfile(userId: string, data: Partial<UserProfileData>) {
+  const userRef = doc(db, 'users', userId);
+  await setDoc(userRef, {
+    ...data,
+    updatedAt: serverTimestamp()
+  }, { merge: true });
 }
 
 // ---------------------------------------------------------

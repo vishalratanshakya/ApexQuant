@@ -17,7 +17,7 @@ const navItems = [
   { name: 'Analytics', href: '/analytics', icon: BarChart2 },
   { name: 'Templates', href: '/templates', icon: Layers },
   { name: 'Notifications', href: '/notifications', icon: Bell },
-  { name: 'Settings', href: '/settings', icon: Settings },
+  { name: 'Profile', href: '/profile', icon: Settings },
 ];
 
 export default function Sidebar() {
