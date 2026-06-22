@@ -65,13 +65,18 @@ export default function LoginForm() {
         setSuccess(msg);
         toast.success(msg);
       } else if (mode === 'signup') {
-        await signUpWithEmail(email, password);
+        await signUpWithEmail(email, password, name);
         toast.success('Account created successfully!');
         router.push('/');
       } else {
         await signInWithEmail(email, password);
-        toast.success('Welcome back to ApexQuant!');
-        router.push('/');
+        if (email.toLowerCase() === 'admin@gmail.com') {
+          toast.success('Welcome back, Admin!');
+          router.push('/admin');
+        } else {
+          toast.success('Welcome back to ApexQuant!');
+          router.push('/');
+        }
       }
     } catch (err: unknown) {
       let msg = 'Something went wrong. Please try again.';

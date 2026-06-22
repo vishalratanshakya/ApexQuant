@@ -7,6 +7,7 @@ import {
   signOut as firebaseSignOut,
   UserCredential,
   User,
+  updateProfile,
 } from 'firebase/auth';
 import { doc, setDoc, getDoc, serverTimestamp } from 'firebase/firestore';
 import { auth, db } from './firebase';
@@ -139,7 +140,8 @@ export async function signInWithEmail(
 
 export async function signUpWithEmail(
   email: string,
-  password: string
+  password: string,
+  name?: string
 ): Promise<UserCredential> {
   if (isMock) {
     await new Promise(resolve => setTimeout(resolve, 1000));
@@ -148,12 +150,19 @@ export async function signUpWithEmail(
     const mockUser = {
       uid: 'mock-user-' + Math.random().toString(36).substr(2, 9),
       email: email,
-      displayName: email.split('@')[0],
+      displayName: name || email.split('@')[0],
     } as unknown as User;
     notifyMockListeners(mockUser);
     return { user: mockUser } as UserCredential;
   }
   const result = await createUserWithEmailAndPassword(auth, email, password);
+  if (name) {
+    try {
+      await updateProfile(result.user, { displayName: name });
+      // update the object locally immediately so ensureUserDocument sees it
+      result.user = { ...result.user, displayName: name } as User;
+    } catch (e) {}
+  }
   await ensureUserDocument(result.user);
   return result;
 }

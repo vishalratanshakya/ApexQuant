@@ -209,11 +209,11 @@ export default function Header() {
               className="flex items-center gap-3 pl-4 border-l border-border hover:bg-slate-50 p-1.5 rounded-xl transition-colors"
             >
               <div className="text-right hidden sm:block">
-                <p className="text-sm font-semibold text-text">{user?.email?.split('@')[0] || 'Trader'}</p>
+                <p className="text-sm font-semibold text-text">{user?.displayName || user?.email?.split('@')[0] || 'Trader'}</p>
                 <p className="text-[10px] text-success font-medium">Pro Plan Active</p>
               </div>
               <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center text-primary font-bold text-xs uppercase shadow-sm">
-                {user?.email?.[0] || 'T'}
+                {(user?.displayName?.[0] || user?.email?.[0] || 'T').toUpperCase()}
               </div>
               <ChevronDown className={`w-4 h-4 text-slate-400 transition-transform ${dropdownOpen ? 'rotate-180' : ''}`} />
             </button>

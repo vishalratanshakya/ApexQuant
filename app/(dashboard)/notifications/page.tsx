@@ -4,12 +4,23 @@ import { useState, useEffect } from 'react';
 import { Bell, AlertTriangle, CheckCircle, Info, Settings, Trash2, MessageSquare, Megaphone } from 'lucide-react';
 import { useAuth } from '@/providers/AuthProvider';
 import { db } from '@/lib/firebase';
-import { collection, query, where, onSnapshot } from 'firebase/firestore';
+import { collection, query, where, onSnapshot, deleteDoc, doc } from 'firebase/firestore';
+import { toast } from 'react-hot-toast';
 
 export default function NotificationsPage() {
   const { user } = useAuth();
   const [personalNotifs, setPersonalNotifs] = useState<any[]>([]);
   const [announcements, setAnnouncements] = useState<any[]>([]);
+  const [dismissed, setDismissed] = useState<string[]>([]);
+
+  useEffect(() => {
+    const stored = localStorage.getItem('dismissedAnnouncements');
+    if (stored) {
+      try {
+        setDismissed(JSON.parse(stored));
+      } catch (e) {}
+    }
+  }, []);
 
   useEffect(() => {
     if (!user) return;
@@ -50,14 +61,34 @@ export default function NotificationsPage() {
     };
   }, [user]);
 
-  const allNotifications = [...announcements, ...personalNotifs].sort((a,b) => {
-    const da = a.createdAt ? new Date(a.createdAt) : (a.sentAt?.toDate ? a.sentAt.toDate() : new Date(a.sentAt || 0));
-    const dbTime = b.createdAt ? new Date(b.createdAt) : (b.sentAt?.toDate ? b.sentAt.toDate() : new Date(b.sentAt || 0));
-    return dbTime.getTime() - da.getTime();
-  });
+  const allNotifications = [...announcements, ...personalNotifs]
+    .filter(a => !dismissed.includes(a.id))
+    .sort((a,b) => {
+      const da = a.createdAt ? new Date(a.createdAt) : (a.sentAt?.toDate ? a.sentAt.toDate() : new Date(a.sentAt || 0));
+      const dbTime = b.createdAt ? new Date(b.createdAt) : (b.sentAt?.toDate ? b.sentAt.toDate() : new Date(b.sentAt || 0));
+      return dbTime.getTime() - da.getTime();
+    });
+
+  const handleDelete = async (notification: any) => {
+    if (notification.type === 'announcement' || notification.status === 'Sent') {
+      // It's a global announcement, just dismiss locally
+      const newDismissed = [...dismissed, notification.id];
+      setDismissed(newDismissed);
+      localStorage.setItem('dismissedAnnouncements', JSON.stringify(newDismissed));
+      toast.success('Notification dismissed');
+    } else {
+      // It's a personal notification, delete from Firestore
+      try {
+        await deleteDoc(doc(db, 'notifications', notification.id));
+        toast.success('Notification deleted');
+      } catch (error) {
+        toast.error('Failed to delete notification');
+      }
+    }
+  };
 
   return (
-    <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500 pb-24 max-w-4xl mx-auto">
+    <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500 pb-24 w-full">
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
@@ -121,9 +152,13 @@ export default function NotificationsPage() {
                     {notification.message || notification.content}
                   </p>
                 </div>
-                <div className="opacity-0 group-hover:opacity-100 transition-opacity flex items-center shrink-0">
-                  <button className="p-2 text-slate-400 hover:text-loss rounded-lg hover:bg-loss/10 transition-colors">
-                    <Trash2 className="w-4 h-4" />
+                <div className="flex items-center shrink-0 ml-2">
+                  <button 
+                    onClick={() => handleDelete(notification)}
+                    className="p-2 text-slate-300 hover:text-red-500 rounded-lg hover:bg-red-50 transition-colors"
+                    title="Delete Notification"
+                  >
+                    <Trash2 className="w-5 h-5" />
                   </button>
                 </div>
               </div>
