@@ -1,3 +1,5 @@
+'use client';
+
 import { useState, useMemo } from 'react';
 import { History, Search, Filter, ChevronDown } from 'lucide-react';
 
