@@ -67,10 +67,10 @@ export default function Header() {
             <span className="text-xs font-semibold text-slate-600">NSE: OPEN</span>
           </div>
 
-          <button className="relative p-2 text-slate-400 hover:text-text rounded-full hover:bg-slate-50 transition-colors">
+          <Link href="/notifications" className="relative p-2 text-slate-400 hover:text-text rounded-full hover:bg-slate-50 transition-colors block">
             <Bell className="w-5 h-5" />
             <span className="absolute top-1.5 right-1.5 w-2 h-2 rounded-full bg-loss animate-pulse"></span>
-          </button>
+          </Link>
           
           <div className="relative" ref={dropdownRef}>
             <button 
