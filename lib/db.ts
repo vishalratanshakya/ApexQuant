@@ -63,6 +63,7 @@ export interface UserProfileData {
   experience?: 'Beginner' | 'Intermediate' | 'Advanced' | '';
   bio?: string;
   plan?: 'Free' | 'Pro' | 'Enterprise';
+  isAdmin?: boolean;
   brokers?: {
     id: string;
     name: string;
