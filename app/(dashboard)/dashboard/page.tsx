@@ -125,7 +125,9 @@ export default function DashboardPage() {
           <div className="glass-card rounded-xl border border-border bg-white shadow-sm overflow-hidden">
             <div className="px-5 py-4 border-b border-border flex items-center justify-between bg-slate-50/50">
               <h2 className="text-base font-bold text-text">Active Strategies</h2>
-              <Link href="/strategies" className="text-xs font-semibold text-primary hover:underline">View All</Link>
+              <Link href="/strategies" className="px-3 py-1.5 bg-white border border-slate-200 text-xs font-bold text-slate-600 rounded-lg hover:bg-slate-50 hover:text-primary transition-colors shadow-sm flex items-center gap-1">
+                View All <ArrowUpRight className="w-3 h-3" />
+              </Link>
             </div>
             <div className="p-0">
               <table className="w-full text-left">
