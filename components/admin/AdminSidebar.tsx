@@ -1,7 +1,8 @@
 import { useState } from 'react';
 import { 
   LayoutDashboard, Users, Activity, PlayCircle, 
-  CreditCard, Library, MessageSquare, ShieldAlert, Settings, LogOut, ChevronRight
+  CreditCard, Library, MessageSquare, ShieldAlert, Settings, LogOut, ChevronRight,
+  Briefcase, Megaphone, Terminal, BarChart
 } from 'lucide-react';
 import { auth } from '@/lib/firebase';
 import { signOut } from 'firebase/auth';
@@ -29,12 +30,13 @@ export function AdminSidebar({ activeTab, setActiveTab }: AdminSidebarProps) {
   const navItems = [
     { id: 'overview', label: 'Overview', icon: LayoutDashboard },
     { id: 'users', label: 'User Management', icon: Users },
-    { id: 'strategies', label: 'Strategies Management', icon: Activity },
+    { id: 'strategies', label: 'Strategies', icon: Briefcase },
     { id: 'deployments', label: 'Live Deployments', icon: PlayCircle },
     { id: 'billing', label: 'Billing & Revenue', icon: CreditCard },
     { id: 'templates', label: 'Templates', icon: Library },
-    { id: 'announcements', label: 'Announcements', icon: MessageSquare },
-    { id: 'logs', label: 'System Logs', icon: ShieldAlert },
+    { id: 'announcements', label: 'Announcements', icon: Megaphone },
+    { id: 'logs', label: 'System Logs', icon: Terminal },
+    { id: 'reports', label: 'Reports & Analytics', icon: BarChart },
     { id: 'settings', label: 'Settings', icon: Settings },
   ];
 

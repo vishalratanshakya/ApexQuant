@@ -13,6 +13,11 @@ import { UserManagementTab } from '@/components/admin/tabs/UserManagementTab';
 import { StrategiesManagementTab } from '@/components/admin/tabs/StrategiesManagementTab';
 import { LiveDeploymentsTab } from '@/components/admin/tabs/LiveDeploymentsTab';
 import { BillingRevenueTab } from '@/components/admin/tabs/BillingRevenueTab';
+import { TemplatesTab } from '@/components/admin/tabs/TemplatesTab';
+import { AnnouncementsTab } from '@/components/admin/tabs/AnnouncementsTab';
+import { SystemLogsTab } from '@/components/admin/tabs/SystemLogsTab';
+import { SettingsTab } from '@/components/admin/tabs/SettingsTab';
+import { ReportsTab } from '@/components/admin/tabs/ReportsTab';
 
 export default function AdminDashboard() {
   const [activeTab, setActiveTab] = useState('overview');
@@ -34,11 +39,11 @@ export default function AdminDashboard() {
                 {activeTab === 'deployments' && <LiveDeploymentsTab key="deployments" />}
                 {activeTab === 'billing' && <BillingRevenueTab key="billing" />}
                 
-                {/* Fallbacks for unfinished tabs */}
-                {activeTab === 'templates' && <PlaceholderTab key="templates" title="Templates Management" />}
-                {activeTab === 'announcements' && <PlaceholderTab key="announcements" title="Announcements" />}
-                {activeTab === 'logs' && <PlaceholderTab key="logs" title="System Logs" />}
-                {activeTab === 'settings' && <PlaceholderTab key="settings" title="Platform Settings" />}
+                {activeTab === 'templates' && <TemplatesTab key="templates" />}
+                {activeTab === 'announcements' && <AnnouncementsTab key="announcements" />}
+                {activeTab === 'logs' && <SystemLogsTab key="logs" />}
+                {activeTab === 'settings' && <SettingsTab key="settings" />}
+                {activeTab === 'reports' && <ReportsTab key="reports" />}
               </AnimatePresence>
             </div>
           </main>
