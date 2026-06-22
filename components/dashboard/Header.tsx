@@ -49,7 +49,7 @@ export default function Header() {
   const unreadAnnouncements = announcements.filter(a => !dismissed.includes(a.id));
 
   const handleMarkAllRead = () => {
-    const newDismissed = [...new Set([...dismissed, ...announcements.map(a => a.id)])];
+    const newDismissed = Array.from(new Set([...dismissed, ...announcements.map(a => a.id)]));
     setDismissed(newDismissed);
     localStorage.setItem('dismissedAnnouncements', JSON.stringify(newDismissed));
   };

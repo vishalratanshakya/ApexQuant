@@ -25,8 +25,8 @@ interface BuilderContextType {
   setReEntry: (re: string) => void;
   conditions: any[];
   setConditions: (conds: any[]) => void;
-  status: 'Draft' | 'Saved' | 'Backtesting';
-  setStatus: (s: 'Draft' | 'Saved' | 'Backtesting') => void;
+  status: 'Draft' | 'Saved' | 'Backtesting' | 'Live';
+  setStatus: (s: 'Draft' | 'Saved' | 'Backtesting' | 'Live') => void;
   showErrors: boolean;
   setShowErrors: (s: boolean) => void;
 }
@@ -45,7 +45,7 @@ export function BuilderProvider({ children }: { children: ReactNode }) {
   const [trailingSL, setTrailingSL] = useState(false);
   const [reEntry, setReEntry] = useState('No Re-entry');
   const [conditions, setConditions] = useState<any[]>([]);
-  const [status, setStatus] = useState<'Draft' | 'Saved' | 'Backtesting'>('Draft');
+  const [status, setStatus] = useState<'Draft' | 'Saved' | 'Backtesting' | 'Live'>('Draft');
   const [showErrors, setShowErrors] = useState(false);
 
   return (
