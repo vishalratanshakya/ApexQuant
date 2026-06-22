@@ -140,9 +140,9 @@ export default function MarketScannerPage() {
                     </div>
                   </td>
                   <td className="px-6 py-4 text-right">
-                    <button className="px-4 py-1.5 rounded-lg text-xs font-bold text-primary bg-primary/10 hover:bg-primary/20 transition-all">
+                    <Link href={`/scanner/${opp.symbol}`} className="px-4 py-1.5 rounded-lg text-xs font-bold text-primary bg-primary/10 hover:bg-primary/20 transition-all">
                       Analyze
-                    </button>
+                    </Link>
                   </td>
                 </tr>
               ))}
