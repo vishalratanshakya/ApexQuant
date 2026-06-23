@@ -17,8 +17,12 @@ export default function DashboardLayout({
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
   useEffect(() => {
-    if (!loading && !user) {
-      router.push('/login');
+    if (!loading) {
+      if (!user) {
+        router.push('/login');
+      } else if (user.email === 'admin@gmail.com') {
+        router.push('/crm');
+      }
     }
   }, [user, loading, router]);
 

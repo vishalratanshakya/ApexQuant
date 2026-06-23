@@ -15,8 +15,12 @@ export default function CRMLayout({
   const router = useRouter();
 
   useEffect(() => {
-    if (!loading && !user) {
-      router.push('/login');
+    if (!loading) {
+      if (!user) {
+        router.push('/login');
+      } else if (user.email !== 'admin@gmail.com') {
+        router.push('/dashboard');
+      }
     }
   }, [user, loading, router]);
 
