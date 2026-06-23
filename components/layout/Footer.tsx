@@ -51,7 +51,7 @@ export default function Footer() {
           {/* Brand column */}
           <div className="col-span-2 md:col-span-3 lg:col-span-2">
             <Link href="/" className="flex items-center gap-2 mb-4">
-              <img src="/logo.png" alt="ApexQuant" className="h-14 w-auto" />
+              <img src="/logo.png" alt="ApexQuant" className="h-20 lg:h-24 w-auto" />
             </Link>
             <p className="text-text-light text-sm leading-relaxed mb-6 max-w-xs">
               India&apos;s most powerful no-code algorithmic trading platform. Build, backtest, and deploy strategies in minutes.

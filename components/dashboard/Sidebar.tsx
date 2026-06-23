@@ -35,7 +35,7 @@ export default function Sidebar({ isOpen, setIsOpen }: { isOpen?: boolean, setIs
   };
 
   return (
-    <aside className={`fixed inset-y-0 left-0 w-64 bg-white border-r border-border flex flex-col z-40 mt-16 pb-16 transition-transform duration-300 lg:translate-x-0 ${isOpen ? 'translate-x-0' : '-translate-x-full'}`}>
+    <aside className={`fixed inset-y-0 left-0 w-64 bg-white border-r border-border flex flex-col z-40 mt-20 pb-20 transition-transform duration-300 lg:translate-x-0 ${isOpen ? 'translate-x-0' : '-translate-x-full'}`}>
       <nav className="flex-1 px-4 py-6 space-y-1 overflow-y-auto custom-scrollbar">
         {navItems.map((item) => {
           // Highlight if we are exactly on the route, or if we are inside a sub-route (like /backtest/123)

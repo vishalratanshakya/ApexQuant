@@ -109,7 +109,7 @@ export default function Header({ onMenuClick }: { onMenuClick?: () => void }) {
   };
 
   return (
-    <header className="h-16 bg-white border-b border-border flex items-center justify-between px-6 fixed top-0 inset-x-0 z-50 shadow-sm">
+    <header className="h-20 bg-white border-b border-border flex items-center justify-between px-6 fixed top-0 inset-x-0 z-50 shadow-sm">
       <div className="flex items-center gap-4">
         {/* Mobile menu button */}
         <button 
@@ -121,7 +121,7 @@ export default function Header({ onMenuClick }: { onMenuClick?: () => void }) {
         </button>
         {/* Logo */}
         <Link href="/" className="flex items-center gap-2 lg:w-64">
-          <img src="/logo.png" alt="ApexQuant" className="h-12 w-auto hidden sm:block" />
+          <img src="/logo.png" alt="ApexQuant" className="h-16 w-auto hidden sm:block" />
         </Link>
       </div>
 

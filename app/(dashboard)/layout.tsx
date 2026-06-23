@@ -37,7 +37,7 @@ export default function DashboardLayout({
   return (
     <div className="min-h-screen bg-surface-2 flex flex-col">
       <Header onMenuClick={() => setIsSidebarOpen(true)} />
-      <div className="flex flex-1 pt-16">
+      <div className="flex flex-1 pt-20">
         {isSidebarOpen && (
           <div 
             className="fixed inset-0 bg-slate-900/20 backdrop-blur-sm z-30 lg:hidden"

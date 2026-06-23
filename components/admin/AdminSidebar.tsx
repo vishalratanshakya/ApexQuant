@@ -47,7 +47,7 @@ export function AdminSidebar({ activeTab, setActiveTab, isOpen }: AdminSidebarPr
       {/* Brand */}
       <div className="p-6 border-b border-slate-200 flex items-center gap-3">
         <div>
-          <img src="/logo.png" alt="ApexQuant" className="h-14 w-auto" />
+          <img src="/logo.png" alt="ApexQuant" className="h-20 w-auto" />
           <p className="text-[10px] uppercase tracking-widest text-blue-600 font-bold">Admin Portal</p>
         </div>
       </div>
