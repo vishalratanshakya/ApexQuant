@@ -70,20 +70,21 @@ export default function NotificationsPage() {
     });
 
   const handleDelete = async (notification: any) => {
-    if (notification.type === 'announcement' || notification.status === 'Sent') {
-      // It's a global announcement, just dismiss locally
-      const newDismissed = [...dismissed, notification.id];
-      setDismissed(newDismissed);
-      localStorage.setItem('dismissedAnnouncements', JSON.stringify(newDismissed));
-      toast.success('Notification dismissed');
-    } else {
-      // It's a personal notification, delete from Firestore
-      try {
+    try {
+      if (notification.type === 'announcement' || notification.status === 'Sent') {
+        // It's a global announcement, just dismiss locally
+        const newDismissed = [...dismissed, notification.id];
+        setDismissed(newDismissed);
+        localStorage.setItem('dismissedAnnouncements', JSON.stringify(newDismissed));
+        toast.success('Notification dismissed');
+      } else {
+        // It's a personal notification, delete from Firestore
         await deleteDoc(doc(db, 'notifications', notification.id));
         toast.success('Notification deleted');
-      } catch (error) {
-        toast.error('Failed to delete notification');
       }
+    } catch (error: any) {
+      console.error('Delete Error:', error);
+      toast.error('Failed to delete notification: ' + error.message);
     }
   };
 
@@ -152,13 +153,17 @@ export default function NotificationsPage() {
                     {notification.message || notification.content}
                   </p>
                 </div>
-                <div className="flex items-center shrink-0 ml-2">
+                <div className="flex items-center shrink-0 ml-4">
                   <button 
-                    onClick={() => handleDelete(notification)}
-                    className="p-2 text-slate-300 hover:text-red-500 rounded-lg hover:bg-red-50 transition-colors"
+                    type="button"
+                    onClick={(e) => {
+                      e.preventDefault();
+                      handleDelete(notification);
+                    }}
+                    className="p-2 text-slate-400 hover:text-red-500 rounded-lg hover:bg-red-50 transition-colors shadow-sm bg-white border border-slate-100 hover:border-red-100"
                     title="Delete Notification"
                   >
-                    <Trash2 className="w-5 h-5" />
+                    <Trash2 className="w-4 h-4" />
                   </button>
                 </div>
               </div>
