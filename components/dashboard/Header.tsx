@@ -10,7 +10,7 @@ import { signOut } from '@/lib/auth';
 import { toast } from 'react-hot-toast';
 import { useRouter } from 'next/navigation';
 
-export default function Header() {
+export default function Header({ onMenuClick }: { onMenuClick?: () => void }) {
   const { user } = useAuth();
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [notificationsOpen, setNotificationsOpen] = useState(false);
@@ -112,7 +112,10 @@ export default function Header() {
     <header className="h-16 bg-white border-b border-border flex items-center justify-between px-6 fixed top-0 inset-x-0 z-50 shadow-sm">
       <div className="flex items-center gap-4">
         {/* Mobile menu button */}
-        <button className="lg:hidden p-2 -ml-2 text-slate-400 hover:text-text rounded-lg hover:bg-slate-50">
+        <button 
+          onClick={onMenuClick}
+          className="lg:hidden p-2 -ml-2 text-slate-400 hover:text-text rounded-lg hover:bg-slate-50"
+        >
           <Menu className="w-5 h-5" />
         </button>
         {/* Logo */}

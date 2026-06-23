@@ -2,7 +2,7 @@
 
 import { useAuth } from '@/providers/AuthProvider';
 import { useRouter } from 'next/navigation';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import Sidebar from '@/components/dashboard/Sidebar';
 import Header from '@/components/dashboard/Header';
 import GlobalAnnouncements from '@/components/dashboard/GlobalAnnouncements';
@@ -14,6 +14,7 @@ export default function DashboardLayout({
 }) {
   const { user, loading } = useAuth();
   const router = useRouter();
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
   useEffect(() => {
     if (!loading && !user) {
@@ -31,9 +32,15 @@ export default function DashboardLayout({
 
   return (
     <div className="min-h-screen bg-surface-2 flex flex-col">
-      <Header />
+      <Header onMenuClick={() => setIsSidebarOpen(true)} />
       <div className="flex flex-1 pt-16">
-        <Sidebar />
+        {isSidebarOpen && (
+          <div 
+            className="fixed inset-0 bg-slate-900/20 backdrop-blur-sm z-30 lg:hidden"
+            onClick={() => setIsSidebarOpen(false)}
+          />
+        )}
+        <Sidebar isOpen={isSidebarOpen} setIsOpen={setIsSidebarOpen} />
         <main className="flex-1 lg:pl-64 min-h-[calc(100vh-64px)] flex flex-col">
           <GlobalAnnouncements />
           <div className="flex-1 p-6 lg:p-8">
