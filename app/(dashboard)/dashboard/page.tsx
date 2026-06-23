@@ -60,7 +60,7 @@ export default function DashboardPage() {
       </div>
 
       {/* Top Stats */}
-      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
+      <div className="flex overflow-x-auto pb-4 -mx-4 px-4 sm:-mx-6 sm:px-6 lg:mx-0 lg:px-0 lg:grid lg:grid-cols-5 gap-4 snap-x snap-mandatory [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
         {[
           { label: "Today's P&L", value: '+₹12,450', change: '+0.8% (Today)', icon: TrendingUp, gradient: 'bg-gradient-to-br from-emerald-400 to-emerald-600' },
           { label: 'Total Returns', value: '₹3,45,000', change: '+24.5% (All-time)', icon: DollarSign, gradient: 'bg-gradient-to-br from-blue-500 to-blue-700' },
@@ -68,7 +68,7 @@ export default function DashboardPage() {
           { label: 'Backtests Run', value: backtests.length.toString(), change: 'Total Runs', icon: ArrowUpRight, gradient: 'bg-gradient-to-br from-orange-400 to-orange-600' },
           { label: 'Total Deployed', value: '12', change: 'Lifetime', icon: Settings, gradient: 'bg-gradient-to-br from-indigo-500 to-indigo-700' },
         ].map((stat, i) => (
-          <div key={i} className={`rounded-xl p-5 shadow-sm hover:shadow-lg transition-all text-white ${stat.gradient}`}>
+          <div key={i} className={`min-w-[260px] lg:min-w-0 snap-center shrink-0 lg:shrink rounded-xl p-5 shadow-sm hover:shadow-lg transition-all text-white ${stat.gradient}`}>
             <div className="flex items-start justify-between mb-3">
               <div className="w-10 h-10 rounded-lg bg-white/20 flex items-center justify-center backdrop-blur-sm shadow-inner">
                 <stat.icon className="w-5 h-5 text-white" />
