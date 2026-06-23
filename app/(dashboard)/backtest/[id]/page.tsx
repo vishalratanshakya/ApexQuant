@@ -11,18 +11,22 @@ import dynamic from 'next/dynamic';
 const TradingViewChart = dynamic(() => import('@/components/dashboard/TradingViewChart'), { ssr: false });
 
 export default function BacktestReportPage({ params }: { params: { id: string } }) {
-  const { user } = useAuth();
+  const { user, loading: authLoading } = useAuth();
   const [backtest, setBacktest] = useState<BacktestData | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    if (authLoading) return;
+
     if (user) {
-      getBacktestById(user.uid, params.id).then(data => {
-        setBacktest(data);
-        setLoading(false);
-      });
+      getBacktestById(user.uid, params.id)
+        .then(data => setBacktest(data))
+        .catch(err => console.error("Error fetching backtest:", err))
+        .finally(() => setLoading(false));
+    } else {
+      setLoading(false);
     }
-  }, [user, params.id]);
+  }, [user, authLoading, params.id]);
 
   // Mock data for charts
   const equityData = Array.from({ length: 60 }, (_, i) => ({
