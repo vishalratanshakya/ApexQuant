@@ -83,7 +83,7 @@ export default function StrategyCard({
           </button>
         )}
         <Link 
-          href={`/dashboard/backtest/${id}`}
+          href={`/backtest/${id}`}
           className="flex-1 flex items-center justify-center gap-2 bg-slate-100 text-slate-600 hover:bg-slate-200 py-2 rounded-lg text-xs font-semibold transition-colors"
         >
           <Activity className="w-3.5 h-3.5" /> Report
