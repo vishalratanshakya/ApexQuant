@@ -43,8 +43,15 @@ export default function CRMSidebar() {
     <aside className="fixed inset-y-0 left-0 w-64 bg-[#0f172a] text-slate-300 flex flex-col z-40">
       {/* Logo */}
       <div className="h-24 flex items-center px-6 border-b border-slate-800">
-        <Link href="/" className="flex items-center gap-2">
-          <img src="/logo.png" alt="ApexQuant" className="h-20 w-auto" />
+        <Link href="/crm" className="flex items-center gap-2 group px-2 mb-8">
+          <div className="relative flex-shrink-0">
+            <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-indigo-600 to-purple-600 flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform duration-300">
+              <TrendingUp className="w-4 h-4 text-white" strokeWidth={2.5} />
+            </div>
+          </div>
+          <span className="font-display font-black text-2xl tracking-tight text-white">
+            Apex<span className="text-indigo-500">CRM</span>
+          </span>
         </Link>
       </div>
 
