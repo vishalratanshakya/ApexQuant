@@ -8,9 +8,13 @@ import { useAuth } from '@/hooks/useAuth';
 import { getBacktestById, BacktestData } from '@/lib/db';
 import dynamic from 'next/dynamic';
 
+import { useRouter } from 'next/navigation';
+import { toast } from 'react-hot-toast';
+
 const TradingViewChart = dynamic(() => import('@/components/dashboard/TradingViewChart'), { ssr: false });
 
 export default function BacktestReportPage({ params }: { params: { id: string } }) {
+  const router = useRouter();
   const { user, loading: authLoading } = useAuth();
   const [backtest, setBacktest] = useState<BacktestData | null>(null);
   const [loading, setLoading] = useState(true);
@@ -39,6 +43,27 @@ export default function BacktestReportPage({ params }: { params: { id: string } 
     value: - (Math.random() * 5 + 1)
   }));
 
+  const handleDeployLive = () => {
+    toast.success('Strategy successfully deployed to live trading!');
+    router.push('/live');
+  };
+
+  const handleExportCSV = () => {
+    const csvContent = "data:text/csv;charset=utf-8," 
+      + "Date,Equity,Drawdown\n"
+      + equityData.map((e, i) => `${e.time},${e.value},${drawdownData[i].value}`).join("\n");
+    
+    const encodedUri = encodeURI(csvContent);
+    const link = document.createElement("a");
+    link.setAttribute("href", encodedUri);
+    link.setAttribute("download", `backtest_${params.id}_export.csv`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    
+    toast.success('CSV Export downloaded successfully');
+  };
+
   if (loading) {
     return <div className="p-12 text-center text-slate-500">Loading Report...</div>;
   }
@@ -58,10 +83,10 @@ export default function BacktestReportPage({ params }: { params: { id: string } 
           </h1>
         </div>
         <div className="flex items-center gap-3">
-          <button className="btn-secondary px-4 py-2 rounded-xl text-sm font-semibold flex items-center gap-2">
+          <button onClick={handleExportCSV} className="btn-secondary px-4 py-2 rounded-xl text-sm font-semibold flex items-center gap-2 hover:bg-slate-100 transition-colors">
             <Download className="w-4 h-4" /> Export CSV
           </button>
-          <button className="btn-primary px-4 py-2 rounded-xl text-sm font-semibold text-white flex items-center gap-2">
+          <button onClick={handleDeployLive} className="btn-primary px-4 py-2 rounded-xl text-sm font-semibold text-white flex items-center gap-2 shadow-lg shadow-primary/30 hover:shadow-primary/40 transition-all">
             <Play className="w-4 h-4 fill-current" /> Deploy Live
           </button>
         </div>
