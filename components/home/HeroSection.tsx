@@ -11,7 +11,7 @@ import { useState, useEffect } from 'react';
 import { useAuth } from '@/hooks/useAuth';
 
 const floatingStats = [
-  { icon: Zap, label: 'Avg Backtest Speed', value: '< 2 sec', color: 'text-primary' },
+  { icon: Zap, label: 'Daily Volume Backtested', value: '₹450 Cr+', color: 'text-primary' },
   { icon: BarChart2, label: 'Strategies Deployed', value: '50,000+', color: 'text-success' },
   { icon: Shield, label: 'Uptime SLA', value: '99.9%', color: 'text-accent' },
 ];

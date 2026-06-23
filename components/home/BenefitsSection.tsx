@@ -6,7 +6,7 @@ import { CheckCircle2 } from 'lucide-react';
 
 const stats = [
   { value: 50000, suffix: '+', label: 'Strategies Deployed', color: 'gradient-text' },
-  { value: 2, suffix: 'Cr+', prefix: '₹', label: 'Daily Volume Backtested', color: 'gradient-text-green' },
+  { value: 450, suffix: 'Cr+', prefix: '₹', label: 'Daily Volume Backtested', color: 'gradient-text-green' },
   { value: 12000, suffix: '+', label: 'Active Traders', color: 'gradient-text' },
   { value: 99.9, suffix: '%', label: 'Platform Uptime', color: 'gradient-text-green' },
 ];

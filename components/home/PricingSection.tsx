@@ -4,6 +4,8 @@ import { motion } from 'framer-motion';
 import Link from 'next/link';
 import { Check, Zap, ArrowRight } from 'lucide-react';
 import { useAuth } from '@/providers/AuthProvider';
+import { useState } from 'react';
+import ContactSalesModal from '@/components/pricing/ContactSalesModal';
 
 const plans = [
   {
@@ -71,6 +73,7 @@ const plans = [
 
 export default function PricingSection() {
   const { user } = useAuth();
+  const [isSalesModalOpen, setIsSalesModalOpen] = useState(false);
   
   return (
     <section id="pricing" className="relative py-24 lg:py-32 overflow-hidden">
@@ -141,14 +144,25 @@ export default function PricingSection() {
                 <p className="text-slate-650 text-sm mt-3">{plan.description}</p>
               </div>
 
-              <Link
-                href={user ? '/profile' : (plan.name === 'Starter' ? '/get-started' : '/login')}
-                id={`pricing-${plan.name.toLowerCase()}-btn`}
-                className={`flex items-center justify-center gap-2 w-full py-3 px-6 rounded-xl font-semibold text-sm mb-8 ${plan.ctaClass}`}
-              >
-                {plan.cta}
-                <ArrowRight className="w-4 h-4" />
-              </Link>
+              {plan.name === 'Enterprise' ? (
+                <button
+                  onClick={() => setIsSalesModalOpen(true)}
+                  id={`pricing-${plan.name.toLowerCase()}-btn`}
+                  className={`flex items-center justify-center gap-2 w-full py-3 px-6 rounded-xl font-semibold text-sm mb-8 ${plan.ctaClass}`}
+                >
+                  {plan.cta}
+                  <ArrowRight className="w-4 h-4" />
+                </button>
+              ) : (
+                <Link
+                  href={plan.name === 'Pro' ? '/upgrade' : (user ? '/dashboard' : '/get-started')}
+                  id={`pricing-${plan.name.toLowerCase()}-btn`}
+                  className={`flex items-center justify-center gap-2 w-full py-3 px-6 rounded-xl font-semibold text-sm mb-8 ${plan.ctaClass}`}
+                >
+                  {plan.cta}
+                  <ArrowRight className="w-4 h-4" />
+                </Link>
+              )}
 
               <div className="space-y-3">
                 {plan.features.map((feature) => (
@@ -162,7 +176,6 @@ export default function PricingSection() {
           ))}
         </div>
 
-        {/* Bottom note */}
         <motion.p
           initial={{ opacity: 0 }}
           whileInView={{ opacity: 1 }}
@@ -173,6 +186,11 @@ export default function PricingSection() {
           All plans include a 14-day free trial · No credit card required · Cancel anytime
         </motion.p>
       </div>
+
+      <ContactSalesModal 
+        isOpen={isSalesModalOpen} 
+        onClose={() => setIsSalesModalOpen(false)} 
+      />
     </section>
   );
 }

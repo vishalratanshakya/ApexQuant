@@ -17,7 +17,7 @@ export default function AdminGuard({ children }: { children: React.ReactNode }) 
     if (authLoading) return;
 
     if (!user) {
-      router.push('/admin/login');
+      router.push('/login');
       return;
     }
 
@@ -27,12 +27,13 @@ export default function AdminGuard({ children }: { children: React.ReactNode }) 
         if (hasAccess) {
           setIsAdmin(true);
         } else {
-          toast.error('Access Denied: Admin privileges required.');
-          router.push('/admin/login');
+          toast.error('Access Denied: You do not have admin privileges.');
+          router.push('/dashboard');
         }
       } catch (error) {
         console.error('Error verifying admin access:', error);
-        router.push('/admin/login');
+        toast.error('Access Denied: Verification failed.');
+        router.push('/dashboard');
       } finally {
         setVerifying(false);
       }
