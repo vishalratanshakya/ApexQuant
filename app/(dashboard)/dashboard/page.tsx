@@ -129,8 +129,8 @@ export default function DashboardPage() {
                 View All <ArrowUpRight className="w-3 h-3" />
               </Link>
             </div>
-            <div className="p-0">
-              <table className="w-full text-left">
+            <div className="p-0 overflow-x-auto custom-scrollbar w-full">
+              <table className="w-full text-left whitespace-nowrap min-w-[500px]">
                 <tbody className="divide-y divide-slate-100">
                   {strategies.slice(0, 5).map((s, i) => (
                     <tr key={i} className="hover:bg-slate-50 transition-colors group">
@@ -172,8 +172,8 @@ export default function DashboardPage() {
             <div className="px-5 py-4 border-b border-border flex items-center justify-between bg-slate-50/50">
               <h2 className="text-base font-bold text-text">Recent Trades</h2>
             </div>
-            <div className="p-0">
-              <table className="w-full text-left">
+            <div className="p-0 overflow-x-auto custom-scrollbar w-full">
+              <table className="w-full text-left whitespace-nowrap min-w-[400px]">
                 <tbody className="divide-y divide-slate-100">
                   {[...Array(5)].map((_, i) => (
                     <tr key={i} className="hover:bg-slate-50 transition-colors">

@@ -114,7 +114,8 @@ export default function Header({ onMenuClick }: { onMenuClick?: () => void }) {
         {/* Mobile menu button */}
         <button 
           onClick={onMenuClick}
-          className="lg:hidden p-2 -ml-2 text-slate-400 hover:text-text rounded-lg hover:bg-slate-50"
+          type="button"
+          className="lg:hidden p-2 -ml-2 text-slate-400 hover:text-text rounded-lg hover:bg-slate-50 relative z-50"
         >
           <Menu className="w-5 h-5" />
         </button>
@@ -160,7 +161,7 @@ export default function Header({ onMenuClick }: { onMenuClick?: () => void }) {
             
             {/* Notifications Dropdown */}
             {notificationsOpen && (
-              <div className="absolute right-0 mt-2 w-80 bg-white rounded-xl shadow-lg border border-border py-2 animate-in fade-in slide-in-from-top-2 z-50 flex flex-col max-h-[80vh]">
+              <div className="fixed inset-x-4 top-16 sm:absolute sm:inset-x-auto sm:top-auto sm:right-0 mt-2 sm:w-80 bg-white rounded-xl shadow-2xl border border-border py-2 animate-in fade-in z-50 flex flex-col max-h-[calc(100vh-5rem)] sm:max-h-[80vh]">
                 <div className="px-4 py-3 border-b border-border flex items-center justify-between shrink-0">
                   <h3 className="font-bold text-slate-800 text-sm">Notifications</h3>
                   {unreadAnnouncements.length > 0 && (
@@ -223,7 +224,7 @@ export default function Header({ onMenuClick }: { onMenuClick?: () => void }) {
 
             {/* Dropdown Menu */}
             {dropdownOpen && (
-              <div className="absolute right-0 mt-2 w-48 bg-white rounded-xl shadow-lg border border-border py-2 animate-in fade-in slide-in-from-top-2">
+              <div className="absolute right-0 mt-2 w-48 bg-white rounded-xl shadow-2xl border border-border py-2 animate-in fade-in z-50">
                 <Link href="/profile" className="flex items-center gap-2 px-4 py-2 text-sm text-slate-600 hover:bg-slate-50 hover:text-text transition-colors">
                   <User className="w-4 h-4" />
                   Profile
