@@ -1,5 +1,7 @@
 import { Play, Square, Settings, MoreVertical, Activity } from 'lucide-react';
 import Link from 'next/link';
+import { useState } from 'react';
+import { toast } from 'react-hot-toast';
 
 interface StrategyCardProps {
   id: string;
@@ -16,7 +18,7 @@ interface StrategyCardProps {
 export default function StrategyCard({
   id,
   name,
-  status,
+  status: initialStatus,
   pnl,
   pnlPercent,
   winRate,
@@ -24,6 +26,18 @@ export default function StrategyCard({
   instrument,
   timeframe,
 }: StrategyCardProps) {
+  const [status, setStatus] = useState(initialStatus);
+
+  const handleToggle = () => {
+    if (status === 'live') {
+      setStatus('stopped');
+      toast.success(`${name} has been stopped.`);
+    } else if (status === 'stopped') {
+      setStatus('live');
+      toast.success(`${name} is now running live!`);
+    }
+  };
+
   return (
     <div className="glass-card rounded-xl p-5 border border-border hover:shadow-card-hover transition-all group">
       <div className="flex items-start justify-between mb-4">
@@ -74,11 +88,11 @@ export default function StrategyCard({
 
       <div className="flex items-center gap-2 pt-4 border-t border-slate-100">
         {status === 'live' ? (
-          <button className="flex-1 flex items-center justify-center gap-2 bg-loss/10 text-loss hover:bg-loss/20 py-2 rounded-lg text-xs font-semibold transition-colors">
+          <button onClick={handleToggle} className="flex-1 flex items-center justify-center gap-2 bg-loss/10 text-loss hover:bg-loss/20 py-2 rounded-lg text-xs font-semibold transition-colors">
             <Square className="w-3.5 h-3.5 fill-current" /> Stop
           </button>
         ) : (
-          <button className="flex-1 flex items-center justify-center gap-2 bg-success/10 text-success hover:bg-success/20 py-2 rounded-lg text-xs font-semibold transition-colors">
+          <button onClick={handleToggle} className="flex-1 flex items-center justify-center gap-2 bg-success/10 text-success hover:bg-success/20 py-2 rounded-lg text-xs font-semibold transition-colors">
             <Play className="w-3.5 h-3.5 fill-current" /> Start
           </button>
         )}
