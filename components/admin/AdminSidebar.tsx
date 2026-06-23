@@ -46,11 +46,8 @@ export function AdminSidebar({ activeTab, setActiveTab, isOpen }: AdminSidebarPr
     <aside className={`w-64 bg-white border-r border-slate-200 text-slate-600 flex flex-col h-screen overflow-y-auto fixed lg:relative z-40 transition-transform duration-300 ${isOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}`}>
       {/* Brand */}
       <div className="p-6 border-b border-slate-200 flex items-center gap-3">
-        <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center shadow-lg shadow-blue-500/20">
-          <ShieldAlert className="w-5 h-5 text-white" />
-        </div>
         <div>
-          <img src="/logo.png" alt="ApexQuant" className="h-8 w-auto" />
+          <img src="/logo.png" alt="ApexQuant" className="h-14 w-auto" />
           <p className="text-[10px] uppercase tracking-widest text-blue-600 font-bold">Admin Portal</p>
         </div>
       </div>

@@ -121,10 +121,7 @@ export default function Header({ onMenuClick }: { onMenuClick?: () => void }) {
         </button>
         {/* Logo */}
         <Link href="/" className="flex items-center gap-2 lg:w-64">
-          <div className="w-8 h-8 rounded-lg bg-gradient-brand flex items-center justify-center">
-            <TrendingUp className="w-4 h-4 text-white" strokeWidth={2.5} />
-          </div>
-          <img src="/logo.png" alt="ApexQuant" className="h-8 w-auto hidden sm:block" />
+          <img src="/logo.png" alt="ApexQuant" className="h-12 w-auto hidden sm:block" />
         </Link>
       </div>
 
