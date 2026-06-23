@@ -59,9 +59,9 @@ export function OverviewTab() {
         <div className="text-sm font-medium text-slate-500">Last updated: Just now</div>
       </div>
 
-      <motion.div variants={container} initial="hidden" animate="show" className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-4">
+      <motion.div variants={container} initial="hidden" animate="show" className="flex overflow-x-auto pb-4 -mx-4 px-4 sm:-mx-6 sm:px-6 lg:mx-0 lg:px-0 lg:grid lg:grid-cols-3 xl:grid-cols-6 gap-4 snap-x snap-mandatory [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
         {metrics.map((m, i) => (
-          <motion.div key={i} variants={item} className={`rounded-xl p-5 shadow-lg hover:shadow-xl transition-all group relative overflow-hidden ${m.bg}`}>
+          <motion.div key={i} variants={item} className={`min-w-[240px] lg:min-w-0 snap-center shrink-0 lg:shrink rounded-xl p-5 shadow-lg hover:shadow-xl transition-all group relative overflow-hidden ${m.bg}`}>
             <div className="flex items-center justify-between mb-4 relative z-10">
               <div className={`w-10 h-10 rounded-lg flex items-center justify-center ${m.iconBg} group-hover:scale-110 transition-transform`}>
                 <m.icon className="w-5 h-5" />
