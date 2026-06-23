@@ -22,14 +22,27 @@ import { NotificationsTab } from '@/components/admin/tabs/NotificationsTab';
 
 export default function AdminDashboard() {
   const [activeTab, setActiveTab] = useState('overview');
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
   return (
     <AdminGuard>
       <div className="flex h-screen bg-slate-50 overflow-hidden font-sans">
-        <AdminSidebar activeTab={activeTab} setActiveTab={setActiveTab} />
+        {/* Mobile Sidebar Overlay */}
+        {isSidebarOpen && (
+          <div 
+            className="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-30 lg:hidden"
+            onClick={() => setIsSidebarOpen(false)}
+          />
+        )}
+        
+        <AdminSidebar 
+          activeTab={activeTab} 
+          setActiveTab={(tab) => { setActiveTab(tab); setIsSidebarOpen(false); }} 
+          isOpen={isSidebarOpen}
+        />
         
         <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
-          <AdminHeader />
+          <AdminHeader onMenuClick={() => setIsSidebarOpen(true)} />
           
           <main className="flex-1 overflow-y-auto p-6 lg:p-8 bg-gradient-to-br from-slate-50 via-blue-50/30 to-purple-50/30 relative">
             <div className="max-w-7xl mx-auto">

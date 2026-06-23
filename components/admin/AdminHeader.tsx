@@ -1,10 +1,10 @@
-import { Bell, Search, UserCircle, AlertCircle, Megaphone } from 'lucide-react';
+import { Bell, Search, UserCircle, AlertCircle, Megaphone, Menu } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 import { useState, useRef, useEffect } from 'react';
 import { db } from '@/lib/firebase';
 import { collection, onSnapshot, query, where, getDocs, updateDoc, doc } from 'firebase/firestore';
 
-export function AdminHeader() {
+export function AdminHeader({ onMenuClick }: { onMenuClick: () => void }) {
   const { user } = useAuth();
   const [notificationsOpen, setNotificationsOpen] = useState(false);
   const notifRef = useRef<HTMLDivElement>(null);
@@ -110,11 +110,21 @@ export function AdminHeader() {
   }, []);
 
   return (
-    <header className="h-16 bg-white border-b border-slate-200 px-6 flex items-center justify-between sticky top-0 z-20">
-      <div className="flex items-center gap-4">
-        <div className="bg-red-500/10 text-red-600 border border-red-200 px-3 py-1 rounded-full text-xs font-bold tracking-wider uppercase flex items-center gap-2">
+    <header className="h-16 bg-white border-b border-slate-200 px-4 lg:px-6 flex items-center justify-between sticky top-0 z-20">
+      <div className="flex items-center gap-2 lg:gap-4">
+        <button 
+          onClick={onMenuClick}
+          className="lg:hidden p-2 -ml-2 text-slate-400 hover:text-slate-600 hover:bg-slate-50 rounded-lg transition-colors"
+        >
+          <Menu className="w-5 h-5" />
+        </button>
+        <div className="hidden sm:flex bg-red-500/10 text-red-600 border border-red-200 px-3 py-1 rounded-full text-xs font-bold tracking-wider uppercase items-center gap-2">
           <span className="w-2 h-2 rounded-full bg-red-500 animate-pulse"></span>
           Admin Mode Active
+        </div>
+        <div className="sm:hidden bg-red-500/10 text-red-600 border border-red-200 px-2 py-1 rounded-full text-[10px] font-bold tracking-wider uppercase flex items-center gap-1.5">
+          <span className="w-1.5 h-1.5 rounded-full bg-red-500 animate-pulse"></span>
+          Admin
         </div>
       </div>
 
