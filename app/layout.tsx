@@ -17,19 +17,10 @@ const outfit = Outfit({
 });
 
 export const metadata: Metadata = {
-  title: 'ApexQuant — No-Code Algo Trading for Indian Markets',
+  title: 'ApexQuant',
   description:
-    'Build, backtest & deploy algorithmic trading strategies without coding. ApexQuant is the premium no-code algo trading platform for Indian markets — Stocks, Futures & Options.',
-  keywords: [
-    'algo trading',
-    'algorithmic trading India',
-    'no-code trading',
-    'backtesting',
-    'Zerodha algo',
-    'NSE options strategy',
-    'quantitative trading',
-    'ApexQuant',
-  ],
+    'Build, backtest, and deploy algorithmic trading strategies without writing a single line of code. Connect with Zerodha, Angel One, and Upstox.',
+  keywords: 'algo trading, no code trading, stock market india, zerodha algo, backtesting',
   authors: [{ name: 'ApexQuant' }],
   creator: 'ApexQuant',
   openGraph: {
@@ -37,13 +28,13 @@ export const metadata: Metadata = {
     locale: 'en_IN',
     url: 'https://apexquant.in',
     siteName: 'ApexQuant',
-    title: 'ApexQuant — No-Code Algo Trading for Indian Markets',
+    title: 'ApexQuant',
     description:
-      'Build, backtest & deploy algorithmic trading strategies without coding.',
+      'India\'s most powerful no-code algorithmic trading platform.',
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'ApexQuant — No-Code Algo Trading for Indian Markets',
+    title: 'ApexQuant',
     description: 'Build, backtest & deploy algorithmic trading strategies without coding.',
   },
   robots: {
