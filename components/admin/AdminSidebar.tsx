@@ -50,7 +50,7 @@ export function AdminSidebar({ activeTab, setActiveTab, isOpen }: AdminSidebarPr
           <ShieldAlert className="w-5 h-5 text-white" />
         </div>
         <div>
-          <h1 className="text-lg font-bold text-slate-800 font-display leading-tight">ApexQuant</h1>
+          <img src="/logo.png" alt="ApexQuant" className="h-8 w-auto" />
           <p className="text-[10px] uppercase tracking-widest text-blue-600 font-bold">Admin Portal</p>
         </div>
       </div>

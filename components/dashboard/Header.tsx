@@ -124,7 +124,7 @@ export default function Header({ onMenuClick }: { onMenuClick?: () => void }) {
           <div className="w-8 h-8 rounded-lg bg-gradient-brand flex items-center justify-center">
             <TrendingUp className="w-4 h-4 text-white" strokeWidth={2.5} />
           </div>
-          <span className="font-display font-bold text-xl gradient-text hidden sm:block">ApexQuant</span>
+          <img src="/logo.png" alt="ApexQuant" className="h-8 w-auto hidden sm:block" />
         </Link>
       </div>
 

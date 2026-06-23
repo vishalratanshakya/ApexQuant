@@ -46,9 +46,7 @@ export default function Navbar() {
                 </div>
                 <div className="absolute -inset-1 bg-primary/20 rounded-xl blur-sm group-hover:bg-primary/40 transition-colors duration-300" />
               </div>
-              <span className="font-display font-black text-2xl md:text-3xl tracking-tight gradient-text">
-                ApexQuant
-              </span>
+              <img src="/logo.png" alt="ApexQuant" className="h-8 w-auto" />
             </Link>
 
             {/* Desktop Nav Links */}

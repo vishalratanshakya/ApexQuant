@@ -54,7 +54,7 @@ export default function Footer() {
               <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-primary to-accent flex items-center justify-center">
                 <TrendingUp className="w-4 h-4 text-white" strokeWidth={2.5} />
               </div>
-              <span className="font-display font-bold text-xl gradient-text">ApexQuant</span>
+              <img src="/logo.png" alt="ApexQuant" className="h-8 w-auto" />
             </Link>
             <p className="text-text-light text-sm leading-relaxed mb-6 max-w-xs">
               India&apos;s most powerful no-code algorithmic trading platform. Build, backtest, and deploy strategies in minutes.
