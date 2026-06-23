@@ -37,7 +37,7 @@ export default function LoginForm() {
     try {
       await signInWithGoogle();
       toast.success('Successfully logged in with Google!');
-      router.push('/');
+      router.push('/dashboard');
     } catch (err: unknown) {
       const errorMessage = err instanceof Error ? err.message : 'Google sign-in failed. Please try again.';
       
@@ -67,7 +67,7 @@ export default function LoginForm() {
       } else if (mode === 'signup') {
         await signUpWithEmail(email, password, name);
         toast.success('Account created successfully!');
-        router.push('/');
+        router.push('/dashboard');
       } else {
         await signInWithEmail(email, password);
         if (email.toLowerCase() === 'admin@gmail.com') {
@@ -75,7 +75,7 @@ export default function LoginForm() {
           router.push('/admin');
         } else {
           toast.success('Welcome back to ApexQuant!');
-          router.push('/');
+          router.push('/dashboard');
         }
       }
     } catch (err: unknown) {
