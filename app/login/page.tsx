@@ -132,7 +132,7 @@ export default function LoginPage() {
       <div className="hidden lg:flex flex-col justify-between w-[45%] p-12 relative z-10">
         {/* Logo */}
         <Link href="/" className="flex items-center gap-2.5">
-          <img src="/logo.png" alt="ApexQuant" className="h-10 w-auto" />
+          <img src="/logo.png" alt="ApexQuant" className="h-20 w-auto" />
         </Link>
 
         {/* Headline */}
@@ -208,7 +208,7 @@ export default function LoginPage() {
           {/* Mobile Logo */}
           <div className="flex justify-center mb-8 lg:hidden">
             <Link href="/" className="flex items-center gap-2">
-              <img src="/logo.png" alt="ApexQuant" className="h-8 w-auto" />
+              <img src="/logo.png" alt="ApexQuant" className="h-16 w-auto" />
             </Link>
           </div>
 
