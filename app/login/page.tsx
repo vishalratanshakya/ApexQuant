@@ -132,10 +132,7 @@ export default function LoginPage() {
       <div className="hidden lg:flex flex-col justify-between w-[45%] p-12 relative z-10">
         {/* Logo */}
         <Link href="/" className="flex items-center gap-2.5">
-          <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-primary to-accent flex items-center justify-center shadow-glow-purple">
-            <TrendingUp className="w-5 h-5 text-white" strokeWidth={2.5} />
-          </div>
-          <span className="font-display font-bold text-2xl gradient-text">ApexQuant</span>
+          <img src="/logo.png" alt="ApexQuant" className="h-10 w-auto" />
         </Link>
 
         {/* Headline */}
@@ -211,10 +208,7 @@ export default function LoginPage() {
           {/* Mobile Logo */}
           <div className="flex justify-center mb-8 lg:hidden">
             <Link href="/" className="flex items-center gap-2">
-              <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-primary to-accent flex items-center justify-center">
-                <TrendingUp className="w-4 h-4 text-white" strokeWidth={2.5} />
-              </div>
-              <span className="font-display font-bold text-xl gradient-text">ApexQuant</span>
+              <img src="/logo.png" alt="ApexQuant" className="h-8 w-auto" />
             </Link>
           </div>
 
