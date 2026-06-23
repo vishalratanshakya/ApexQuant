@@ -40,15 +40,7 @@ export default function Navbar() {
           <div className="flex items-center justify-between h-24 lg:h-28">
             {/* Logo */}
             <Link href="/" className="flex items-center gap-2 group">
-              <div className="relative flex-shrink-0">
-                <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-primary to-accent flex items-center justify-center shadow-glow-purple group-hover:scale-110 transition-transform duration-300">
-                  <TrendingUp className="w-4 h-4 text-white" strokeWidth={2.5} />
-                </div>
-                <div className="absolute -inset-1 bg-primary/20 rounded-xl blur-sm group-hover:bg-primary/40 transition-colors duration-300" />
-              </div>
-              <span className="font-display font-black text-2xl md:text-3xl tracking-tight gradient-text">
-                ApexQuant
-              </span>
+              <img src="/logo.png" alt="ApexQuant" className="h-20 lg:h-24 w-auto" />
             </Link>
 
             {/* Desktop Nav Links */}

@@ -50,15 +50,8 @@ export default function Footer() {
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-10 pb-12 border-b border-border">
           {/* Brand column */}
           <div className="col-span-2 md:col-span-3 lg:col-span-2">
-            <Link href="/" className="flex items-center gap-2 group mb-6">
-              <div className="relative flex-shrink-0">
-                <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-primary to-accent flex items-center justify-center shadow-glow-purple group-hover:scale-110 transition-transform duration-300">
-                  <TrendingUp className="w-4 h-4 text-white" strokeWidth={2.5} />
-                </div>
-              </div>
-              <span className="font-display font-black text-2xl tracking-tight gradient-text">
-                ApexQuant
-              </span>
+            <Link href="/" className="flex items-center gap-2 mb-4">
+              <img src="/logo.png" alt="ApexQuant" className="h-20 lg:h-24 w-auto" />
             </Link>
             <p className="text-text-light text-sm leading-relaxed mb-6 max-w-xs">
               India&apos;s most powerful no-code algorithmic trading platform. Build, backtest, and deploy strategies in minutes.

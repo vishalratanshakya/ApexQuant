@@ -188,16 +188,6 @@ export default function LoginPage() {
             &ldquo;ApexQuant&apos;s backtesting revealed a pattern I never would have found manually.
             My strategy now generates consistent 3-5% monthly returns.&rdquo;
           </p>
-          <div className="hidden lg:flex items-center gap-2 group mb-12">
-            <div className="relative flex-shrink-0">
-              <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-primary to-accent flex items-center justify-center shadow-glow-purple group-hover:scale-110 transition-transform duration-300">
-                <TrendingUp className="w-5 h-5 text-white" strokeWidth={2.5} />
-              </div>
-            </div>
-            <span className="font-display font-black text-3xl tracking-tight gradient-text">
-              ApexQuant
-            </span>
-          </div>
           <div className="flex items-center gap-3">
             <div className="w-8 h-8 rounded-full bg-gradient-to-br from-primary to-accent flex items-center justify-center text-white text-xs font-bold shadow-sm">
               RK
@@ -219,17 +209,13 @@ export default function LoginPage() {
           className="w-full max-w-md"
         >
           {/* Mobile Logo */}
-          <div className="lg:hidden flex justify-center mb-8">
-            <div className="flex items-center gap-2 group">
-              <div className="relative flex-shrink-0">
-                <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-primary to-accent flex items-center justify-center shadow-glow-purple group-hover:scale-110 transition-transform duration-300">
-                  <TrendingUp className="w-5 h-5 text-white" strokeWidth={2.5} />
-                </div>
+          <div className="flex justify-center mb-8 lg:hidden">
+            <Link href="/" className="flex items-center gap-2">
+              <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-primary to-accent flex items-center justify-center">
+                <TrendingUp className="w-4 h-4 text-white" strokeWidth={2.5} />
               </div>
-              <span className="font-display font-black text-3xl tracking-tight gradient-text">
-                ApexQuant
-              </span>
-            </div>
+              <span className="font-display font-bold text-xl gradient-text">ApexQuant</span>
+            </Link>
           </div>
 
           {/* Glass card */}
