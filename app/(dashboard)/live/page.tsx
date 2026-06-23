@@ -63,7 +63,6 @@ export default function LiveStrategiesPage() {
             Go to Builder
           </Link>
         </div>
-      </div>
         </div>
       </div>
     </PlanGuard>

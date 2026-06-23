@@ -94,7 +94,7 @@ export function AdminHeader({ onMenuClick }: { onMenuClick: () => void }) {
   const unreadAnnouncements = allNotifications.filter(a => !dismissed.includes(a.id));
 
   const handleMarkAllRead = () => {
-    const newDismissed = [...new Set([...dismissed, ...allNotifications.map(a => a.id)])];
+    const newDismissed = Array.from(new Set(dismissed.concat(allNotifications.map(a => a.id))));
     setDismissed(newDismissed);
     localStorage.setItem('dismissedAnnouncements', JSON.stringify(newDismissed));
   };

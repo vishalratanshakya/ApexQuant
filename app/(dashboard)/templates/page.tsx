@@ -37,14 +37,14 @@ export default function StrategyTemplatesPage() {
             detailedDescription: data.detailedDescription || data.description || '',
             category: (data.category as TemplateCategory) || 'Intraday',
             difficulty: (data.difficulty as TemplateDifficulty) || 'Intermediate',
-            instrument: (data.instruments && data.instruments.length > 0) ? (data.instruments[0] as InstrumentType) : 'NIFTY50',
+            instrument: (data.instruments && data.instruments.length > 0) ? (data.instruments[0] as any) : 'NIFTY 50',
             winRate: parseInt(data.winRate) || 60,
             avgReturn: '+5.0%',
             maxDrawdown: '-2.0%',
             tradesPerMonth: 10,
             equityCurve: [],
             trending: true, // Make new active published templates appear in trending
-          });
+          } as any);
         }
       });
       setDbTemplates(fetched);

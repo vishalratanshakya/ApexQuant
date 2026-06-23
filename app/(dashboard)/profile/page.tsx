@@ -180,7 +180,7 @@ export default function ProfilePage() {
         <div className="flex-1 text-center md:text-left">
           <h1 className="text-2xl font-bold text-text font-display flex items-center justify-center md:justify-start gap-2">
             {profile?.displayName || 'Apex Trader'}
-            {profile?.plan === 'Pro' && <Crown className="w-5 h-5 text-yellow-500" />}
+            {profile?.subscription?.plan === 'Pro' && <Crown className="w-5 h-5 text-yellow-500" />}
           </h1>
           <p className="text-slate-500">{user?.email}</p>
           <div className="flex items-center justify-center md:justify-start gap-4 mt-3">
@@ -352,14 +352,17 @@ export default function ProfilePage() {
                     <div className="inline-block px-3 py-1 bg-white/20 backdrop-blur-sm rounded-full text-xs font-bold uppercase tracking-wider mb-4">
                       Current Plan
                     </div>
-                    <div className="text-3xl font-black font-display mb-1">
-                      {plan} Tier
-                    </div>
-                    <p className="text-slate-300 text-sm mb-6">
-                      {plan === 'Free' ? 'Upgrade to scale your trading.' : 'Your plan automatically renews on Nov 15, 2026.'}
+                    <span className={`px-2.5 py-1 text-xs font-bold rounded-full ${
+                    profile?.subscription?.plan === 'Pro' ? 'bg-indigo-100 text-indigo-700' :
+                    profile?.subscription?.plan === 'Enterprise' ? 'bg-purple-100 text-purple-700' : 'bg-slate-100 text-slate-700'
+                  }`}>
+                      {profile?.subscription?.plan || 'Free'} Tier
+                    </span>
+                    <p className="text-slate-300 text-sm mb-6 mt-4">
+                      {profile?.subscription?.plan === 'Free' ? 'Upgrade to scale your trading.' : 'Your plan automatically renews on Nov 15, 2026.'}
                     </p>
                     
-                    {plan === 'Free' && (
+                    {profile?.subscription?.plan === 'Free' && (
                       <Link href="/pricing" className="px-5 py-2 bg-white text-slate-900 rounded-xl text-sm font-bold hover:bg-slate-50 transition-colors shadow-sm inline-block">
                         Upgrade to Pro
                       </Link>

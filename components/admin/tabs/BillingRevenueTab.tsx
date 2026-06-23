@@ -259,7 +259,7 @@ export function BillingRevenueTab() {
                       ))}
                     </Pie>
                     <Tooltip 
-                      formatter={(value: number) => `₹${value.toLocaleString()}`}
+                      formatter={(value: any) => [`₹${(value / 1000).toFixed(1)}k`, 'Revenue']}
                       contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }}
                     />
                     <Legend verticalAlign="bottom" height={36} iconType="circle" />

@@ -64,7 +64,7 @@ export function UserManagementTab() {
                         (filters.role === 'Admin' && isAdmin) || 
                         (filters.role === 'User' && !isAdmin);
     
-    const plan = u.plan || 'Free';
+    const plan = u.subscription?.plan || 'Free';
     const matchesPlan = filters.plan === 'All' || plan === filters.plan;
     
     const isSuspended = (u as any).status === 'Suspended';
@@ -136,9 +136,9 @@ export function UserManagementTab() {
         `"${u.displayName || 'Unnamed User'}"`,
         `"${u.email || ''}"`,
         u.role || 'user',
-        u.plan || 'Free',
+        u.subscription?.plan || 'Free',
         status,
-        u.credits || 0,
+        (u as any).credits || 0,
         `"${joinedDate}"`
       ].join(',');
     });
@@ -260,7 +260,7 @@ export function UserManagementTab() {
   const stats = [
     { label: 'Total Users', value: users.length, bg: 'bg-gradient-to-br from-blue-500 to-indigo-600 text-white shadow-blue-500/20' },
     { label: 'Active Now', value: '142', bg: 'bg-gradient-to-br from-emerald-500 to-teal-500 text-white shadow-emerald-500/20' },
-    { label: 'Pro / Enterprise', value: users.filter(u => u.plan !== 'Free').length, bg: 'bg-gradient-to-br from-purple-500 to-fuchsia-600 text-white shadow-purple-500/20' },
+    { label: 'Pro / Enterprise', value: users.filter(u => u.subscription?.plan !== 'Free').length, bg: 'bg-gradient-to-br from-purple-500 to-fuchsia-600 text-white shadow-purple-500/20' },
     { label: 'Suspended', value: users.filter(u => (u as any).status === 'Suspended').length, bg: 'bg-gradient-to-br from-orange-500 to-amber-600 text-white shadow-orange-500/20' },
   ];
 
@@ -439,9 +439,9 @@ export function UserManagementTab() {
                         </td>
                         <td className="px-6 py-4">
                           <span className={`px-2.5 py-1 text-xs font-bold rounded-full ${
-                            u.plan === 'Pro' ? 'bg-indigo-100 text-indigo-700' : 
-                            u.plan === 'Enterprise' ? 'bg-purple-100 text-purple-700' : 'bg-slate-100 text-slate-700'
-                          }`}>{u.plan || 'Free'}</span>
+                            u.subscription?.plan === 'Pro' ? 'bg-indigo-100 text-indigo-700' : 
+                            u.subscription?.plan === 'Enterprise' ? 'bg-purple-100 text-purple-700' : 'bg-slate-100 text-slate-700'
+                          }`}>{u.subscription?.plan || 'Free'}</span>
                         </td>
                         <td className="px-6 py-4">
                           <span className={`px-2.5 py-1 text-xs font-bold rounded-full flex items-center gap-1.5 w-max ${!isSuspended ? 'bg-emerald-100 text-emerald-700' : 'bg-red-100 text-red-700'}`}>
