@@ -37,6 +37,8 @@ export default function TradingViewChart({
         fixLeftEdge: true,
         fixRightEdge: true,
       },
+      handleScroll: false,
+      handleScale: false,
     });
     
     chartRef.current = chart;
