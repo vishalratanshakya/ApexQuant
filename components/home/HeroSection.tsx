@@ -180,15 +180,7 @@ export default function HeroSection() {
                 {user ? "Go to Dashboard" : "Start Building Free"}
                 <ArrowRight className="w-5 h-5" />
               </Link>
-              <button
-                id="hero-demo-btn"
-                className="flex items-center justify-center gap-2 btn-secondary font-semibold px-8 py-4 rounded-xl text-base"
-              >
-                <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center">
-                  <Play className="w-3 h-3 text-primary fill-primary ml-0.5" />
-                </div>
-                Watch Demo
-              </button>
+
             </motion.div>
 
             {/* Trust badges */}
