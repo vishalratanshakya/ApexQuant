@@ -8,35 +8,123 @@ import {
 } from 'lucide-react';
 import dynamic from 'next/dynamic';
 import toast from 'react-hot-toast';
+import { db } from '@/lib/firebase';
+import { collection, onSnapshot, addDoc, serverTimestamp, deleteDoc, doc, getDocs } from 'firebase/firestore';
 
 const TradingViewChart = dynamic(() => import('@/components/dashboard/TradingViewChart'), { ssr: false });
 
 export function ReportsTab() {
   const [generating, setGenerating] = useState(false);
+  const [reports, setReports] = useState<any[]>([]);
+  const [growthData, setGrowthData] = useState<{ time: string, value: number }[]>([]);
 
-  const mockGrowthData = [
-    { time: '2023-01-01', value: 1200 },
-    { time: '2023-02-01', value: 1500 },
-    { time: '2023-03-01', value: 1850 },
-    { time: '2023-04-01', value: 2400 },
-    { time: '2023-05-01', value: 3100 },
-    { time: '2023-06-01', value: 4285 },
-  ];
+  useEffect(() => {
+    // 1. Fetch Users and build growth chart data
+    const fetchUsers = async () => {
+      try {
+        const snap = await getDocs(collection(db, 'users'));
+        const users: any[] = [];
+        snap.forEach(d => users.push(d.data()));
+        
+        // Group by YYYY-MM-DD
+        const dateCounts: Record<string, number> = {};
+        users.forEach(u => {
+          if (u.createdAt) {
+            const date = (u.createdAt.toDate?.() || new Date(u.createdAt)).toISOString().split('T')[0];
+            dateCounts[date] = (dateCounts[date] || 0) + 1;
+          }
+        });
 
-  const reports = [
-    { id: 'rep-001', name: 'Q2 Financial Summary', date: 'Jul 01, 2023', type: 'Revenue', size: '2.4 MB' },
-    { id: 'rep-002', name: 'User Churn Analysis', date: 'Jun 15, 2023', type: 'Users', size: '1.1 MB' },
-    { id: 'rep-003', name: 'Live Strategy Performance', date: 'Jun 01, 2023', type: 'Strategies', size: '4.8 MB' },
-    { id: 'rep-004', name: 'System Error Log Export', date: 'May 30, 2023', type: 'System', size: '8.2 MB' },
-  ];
+        const sortedDates = Object.keys(dateCounts).sort();
+        let cumulative = 0;
+        const cumulativeData = sortedDates.map(date => {
+          cumulative += dateCounts[date];
+          return { time: date, value: cumulative };
+        });
 
-  const handleGenerate = () => {
+        if (cumulativeData.length === 0) {
+          // Fallback if no valid dates
+          cumulativeData.push({ time: new Date().toISOString().split('T')[0], value: users.length });
+        }
+        setGrowthData(cumulativeData);
+      } catch (e) {
+        console.error("Error fetching users:", e);
+      }
+    };
+    fetchUsers();
+
+    // 2. Listen to reports
+    const unsubReports = onSnapshot(collection(db, 'reports'), (snap) => {
+      const fetched: any[] = [];
+      snap.forEach(d => fetched.push({ id: d.id, ...d.data() }));
+      setReports(fetched.sort((a, b) => {
+        const da = a.createdAt?.toDate ? a.createdAt.toDate() : new Date(a.createdAt || 0);
+        const dbTime = b.createdAt?.toDate ? b.createdAt.toDate() : new Date(b.createdAt || 0);
+        return dbTime.getTime() - da.getTime();
+      }));
+    });
+
+    return () => unsubReports();
+  }, []);
+
+  const handleGenerate = async () => {
     setGenerating(true);
     toast.loading('Generating comprehensive report...', { id: 'gen' });
-    setTimeout(() => {
+    
+    try {
+      // Create a dummy CSV for real users
+      const usersSnap = await getDocs(collection(db, 'users'));
+      let csvContent = "data:text/csv;charset=utf-8,ID,Email,Role\n";
+      usersSnap.forEach(d => {
+        const u = d.data();
+        csvContent += `${u.userId},${u.email},${u.role}\n`;
+      });
+      
+      const sizeKB = Math.max(0.1, (csvContent.length / 1024)).toFixed(1);
+      
+      await addDoc(collection(db, 'reports'), {
+        name: `Platform Report - ${new Date().toISOString().split('T')[0]}`,
+        type: 'Users',
+        size: `${sizeKB} KB`,
+        createdAt: serverTimestamp(),
+        csvData: csvContent
+      });
+      
       toast.success('Report generated successfully!', { id: 'gen' });
+    } catch (e) {
+      toast.error('Failed to generate report', { id: 'gen' });
+    } finally {
       setGenerating(false);
-    }, 2500);
+    }
+  };
+
+  const handleDownload = (report: any) => {
+    if (!report.csvData) {
+       toast.error("No data available for this report.");
+       return;
+    }
+    const encodedUri = encodeURI(report.csvData);
+    const link = document.createElement("a");
+    link.setAttribute("href", encodedUri);
+    link.setAttribute("download", `${report.name}.csv`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    toast.success('Downloading report...');
+  };
+
+  const handleDelete = async (id: string) => {
+    if (!confirm('Are you sure you want to delete this report?')) return;
+    try {
+      await deleteDoc(doc(db, 'reports', id));
+      toast.success('Report deleted');
+    } catch (e) {
+      toast.error('Failed to delete report');
+    }
+  };
+
+  const handleView = () => {
+    toast('Report preview not available for CSV. Please download to view.', { icon: 'ℹ️' });
   };
 
   return (
@@ -83,7 +171,11 @@ export function ReportsTab() {
       <div className="bg-white rounded-xl border border-slate-200 shadow-sm p-6">
         <h3 className="text-lg font-bold text-slate-800 mb-4">Platform Growth (Users)</h3>
         <div className="h-[350px] w-full">
-          <TradingViewChart data={mockGrowthData} />
+          {growthData.length > 0 ? (
+            <TradingViewChart data={growthData} />
+          ) : (
+            <div className="flex items-center justify-center h-full text-slate-400">Loading chart data...</div>
+          )}
         </div>
       </div>
 
@@ -105,27 +197,35 @@ export function ReportsTab() {
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100">
-              {reports.map(r => (
-                <tr key={r.id} className="hover:bg-slate-50">
-                  <td className="px-6 py-4 font-bold text-slate-800">{r.name}</td>
-                  <td className="px-6 py-4">
-                    <span className={`px-2.5 py-1 text-[10px] font-bold rounded-full uppercase tracking-wider ${
-                      r.type === 'Revenue' ? 'bg-emerald-100 text-emerald-700' :
-                      r.type === 'Users' ? 'bg-blue-100 text-blue-700' :
-                      r.type === 'Strategies' ? 'bg-indigo-100 text-indigo-700' : 'bg-slate-100 text-slate-600'
-                    }`}>{r.type}</span>
-                  </td>
-                  <td className="px-6 py-4 text-sm text-slate-500 flex items-center gap-1.5 mt-1"><Calendar className="w-3.5 h-3.5" /> {r.date}</td>
-                  <td className="px-6 py-4 text-sm font-mono text-slate-500">{r.size}</td>
-                  <td className="px-6 py-4 text-right">
-                    <div className="flex justify-end gap-1">
-                      <button className="p-1.5 text-slate-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg" title="View"><Eye className="w-4 h-4" /></button>
-                      <button onClick={() => toast.success('Downloading report...')} className="p-1.5 text-slate-400 hover:text-emerald-600 hover:bg-emerald-50 rounded-lg" title="Download"><Download className="w-4 h-4" /></button>
-                      <button onClick={() => toast.success('Report deleted')} className="p-1.5 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-lg" title="Delete"><Trash2 className="w-4 h-4" /></button>
-                    </div>
-                  </td>
+              {reports.map(r => {
+                const dateStr = r.createdAt ? (r.createdAt.toDate?.() || new Date(r.createdAt)).toLocaleDateString() : 'Just now';
+                return (
+                  <tr key={r.id} className="hover:bg-slate-50">
+                    <td className="px-6 py-4 font-bold text-slate-800">{r.name}</td>
+                    <td className="px-6 py-4">
+                      <span className={`px-2.5 py-1 text-[10px] font-bold rounded-full uppercase tracking-wider ${
+                        r.type === 'Revenue' ? 'bg-emerald-100 text-emerald-700' :
+                        r.type === 'Users' ? 'bg-blue-100 text-blue-700' :
+                        r.type === 'Strategies' ? 'bg-indigo-100 text-indigo-700' : 'bg-slate-100 text-slate-600'
+                      }`}>{r.type}</span>
+                    </td>
+                    <td className="px-6 py-4 text-sm text-slate-500 flex items-center gap-1.5 mt-1"><Calendar className="w-3.5 h-3.5" /> {dateStr}</td>
+                    <td className="px-6 py-4 text-sm font-mono text-slate-500">{r.size}</td>
+                    <td className="px-6 py-4 text-right">
+                      <div className="flex justify-end gap-1">
+                        <button onClick={handleView} className="p-1.5 text-slate-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg" title="View"><Eye className="w-4 h-4" /></button>
+                        <button onClick={() => handleDownload(r)} className="p-1.5 text-slate-400 hover:text-emerald-600 hover:bg-emerald-50 rounded-lg" title="Download"><Download className="w-4 h-4" /></button>
+                        <button onClick={() => handleDelete(r.id)} className="p-1.5 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-lg" title="Delete"><Trash2 className="w-4 h-4" /></button>
+                      </div>
+                    </td>
+                  </tr>
+                )
+              })}
+              {reports.length === 0 && (
+                <tr>
+                  <td colSpan={5} className="px-6 py-8 text-center text-slate-500">No reports generated yet. Click "Generate New Report" to create one.</td>
                 </tr>
-              ))}
+              )}
             </tbody>
           </table>
         </div>
