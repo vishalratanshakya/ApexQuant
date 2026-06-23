@@ -14,7 +14,7 @@ service cloud.firestore {
     
     // Strategies (Top-Level Collection)
     match /strategies/{strategyId} {
-      allow read, delete: if request.auth != null && resource.data.userId == request.auth.uid;
+      allow read, delete: if request.auth != null && (resource == null || resource.data.userId == request.auth.uid);
       allow create: if request.auth != null && request.resource.data.userId == request.auth.uid;
       allow update: if request.auth != null 
                     && resource.data.userId == request.auth.uid 
@@ -23,7 +23,7 @@ service cloud.firestore {
     
     // Backtests (Top-Level Collection)
     match /backtests/{backtestId} {
-      allow read, delete: if request.auth != null && resource.data.userId == request.auth.uid;
+      allow read, delete: if request.auth != null && (resource == null || resource.data.userId == request.auth.uid);
       allow create: if request.auth != null && request.resource.data.userId == request.auth.uid;
       allow update: if request.auth != null 
                     && resource.data.userId == request.auth.uid 
@@ -32,7 +32,7 @@ service cloud.firestore {
     
     // Live Deployments (Top-Level Collection)
     match /deployments/{deploymentId} {
-      allow read, delete: if request.auth != null && resource.data.userId == request.auth.uid;
+      allow read, delete: if request.auth != null && (resource == null || resource.data.userId == request.auth.uid);
       allow create: if request.auth != null && request.resource.data.userId == request.auth.uid;
       allow update: if request.auth != null 
                     && resource.data.userId == request.auth.uid 
@@ -41,7 +41,7 @@ service cloud.firestore {
 
     // Trades
     match /trades/{tradeId} {
-      allow read: if request.auth != null && resource.data.userId == request.auth.uid;
+      allow read: if request.auth != null && (resource == null || resource.data.userId == request.auth.uid);
       allow create: if request.auth != null && request.resource.data.userId == request.auth.uid;
     }
 
@@ -59,7 +59,7 @@ service cloud.firestore {
 
     // Notifications
     match /notifications/{notificationId} {
-      allow read, delete: if request.auth != null && (resource.data.userId == request.auth.uid || resource.data.userEmail == request.auth.token.email);
+      allow read, delete: if request.auth != null && (resource == null || resource.data.userId == request.auth.uid || resource.data.userEmail == request.auth.token.email);
       allow create: if request.auth != null && request.resource.data.userId == request.auth.uid;
       allow update: if request.auth != null 
                     && (resource.data.userId == request.auth.uid || resource.data.userEmail == request.auth.token.email);
@@ -67,7 +67,7 @@ service cloud.firestore {
 
     // Portfolio & Market Scans
     match /portfolio/{itemId} {
-      allow read, delete: if request.auth != null && resource.data.userId == request.auth.uid;
+      allow read, delete: if request.auth != null && (resource == null || resource.data.userId == request.auth.uid);
       allow create: if request.auth != null && request.resource.data.userId == request.auth.uid;
       allow update: if request.auth != null 
                     && resource.data.userId == request.auth.uid 
@@ -76,10 +76,10 @@ service cloud.firestore {
 
     // Subscriptions & Payments
     match /subscriptions/{subscriptionId} {
-      allow read: if request.auth != null && resource.data.userId == request.auth.uid;
+      allow read: if request.auth != null && (resource == null || resource.data.userId == request.auth.uid);
     }
     match /payments/{paymentId} {
-      allow read: if request.auth != null && resource.data.userId == request.auth.uid;
+      allow read: if request.auth != null && (resource == null || resource.data.userId == request.auth.uid);
     }
 
     // Sales Inquiries
