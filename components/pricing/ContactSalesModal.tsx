@@ -39,6 +39,19 @@ export default function ContactSalesModal({ isOpen, onClose }: ContactSalesModal
         createdAt: serverTimestamp()
       });
       
+      // Trigger automatic WhatsApp message in the background
+      fetch('/api/whatsapp/send', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          phone: formData.phone,
+          fullName: formData.fullName,
+          company: formData.company
+        }),
+      }).catch(err => console.error('Failed to trigger WhatsApp API:', err));
+      
       setIsSuccess(true);
       setTimeout(() => {
         onClose();
