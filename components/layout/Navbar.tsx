@@ -110,14 +110,23 @@ export default function Navbar() {
       {/* Mobile Menu Drawer */}
       <AnimatePresence>
         {mobileOpen && (
-          <motion.div
-            id="mobile-menu"
-            initial={{ opacity: 0, y: -20 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -20 }}
-            transition={{ duration: 0.2 }}
-            className="fixed top-16 left-0 right-0 z-40 bg-white/95 border-b border-border shadow-lg lg:hidden"
-          >
+          <>
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.2 }}
+              className="fixed inset-0 z-30 bg-slate-900/20 backdrop-blur-sm lg:hidden"
+              onClick={() => setMobileOpen(false)}
+            />
+            <motion.div
+              id="mobile-menu"
+              initial={{ opacity: 0, y: -20 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -20 }}
+              transition={{ duration: 0.2 }}
+              className="fixed top-16 left-0 right-0 z-40 bg-white/95 border-b border-border shadow-lg lg:hidden"
+            >
             <div className="max-w-7xl mx-auto px-4 py-6 flex flex-col gap-4">
               {navLinks.map((link) => (
                 <Link
@@ -159,6 +168,7 @@ export default function Navbar() {
               </div>
             </div>
           </motion.div>
+        </>
         )}
       </AnimatePresence>
     </>
