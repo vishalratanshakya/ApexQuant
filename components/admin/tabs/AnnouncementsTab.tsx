@@ -57,8 +57,8 @@ export function AnnouncementsTab() {
       // Mock data if empty
       if (fetched.length === 0) {
         fetched.push(
-          { id: 'mock1', title: 'New Broker Integration: Upstox', content: 'We are thrilled to announce that Upstox is now fully supported...', audience: 'All Users', priority: 'Important', status: 'Sent', sentAt: new Date(Date.now() - 86400000), reach: 3402 },
-          { id: 'mock2', title: 'Scheduled Maintenance', content: 'Platform will be down for 30 minutes this Saturday at 2 AM IST.', audience: 'All Users', priority: 'Urgent', status: 'Scheduled', sentAt: new Date(Date.now() + 86400000), reach: 0 }
+          { id: 'mock1', title: 'New Broker Integration: Upstox', content: 'We are thrilled to announce that Upstox is now fully supported...', audience: 'All Users', priority: 'Important', status: 'Sent', sentAt: new Date(Date.now() - 86400000), seenBy: ['user1', 'user2', 'user3'] },
+          { id: 'mock2', title: 'Scheduled Maintenance', content: 'Platform will be down for 30 minutes this Saturday at 2 AM IST.', audience: 'All Users', priority: 'Urgent', status: 'Scheduled', sentAt: new Date(Date.now() + 86400000), seenBy: [] }
         );
       }
       setAnnouncements(fetched.sort((a,b) => {
@@ -83,7 +83,7 @@ export function AnnouncementsTab() {
         toast.success('Announcement updated and sent!');
       } else {
         await addDoc(collection(db, 'announcements'), {
-          title, content, audience, priority, status: 'Sent', sentAt: serverTimestamp(), reach: 0
+          title, content, audience, priority, status: 'Sent', sentAt: serverTimestamp(), seenBy: []
         });
         toast.success('Announcement sent successfully!');
       }
@@ -105,7 +105,7 @@ export function AnnouncementsTab() {
         toast.success('Announcement updated and scheduled!');
       } else {
         await addDoc(collection(db, 'announcements'), {
-          title, content, audience, priority, status: 'Scheduled', sentAt: new Date(scheduleDate), reach: 0
+          title, content, audience, priority, status: 'Scheduled', sentAt: new Date(scheduleDate), seenBy: []
         });
         toast.success('Announcement scheduled successfully!');
       }
@@ -249,7 +249,7 @@ export function AnnouncementsTab() {
                         <div className="flex items-center gap-4 text-xs font-medium text-slate-500">
                           <span className="flex items-center gap-1.5"><Calendar className="w-3.5 h-3.5" /> {dateStr}</span>
                           <span className="flex items-center gap-1.5"><Users className="w-3.5 h-3.5" /> Audience: {a.audience}</span>
-                          {a.status === 'Sent' && <span className="flex items-center gap-1.5 text-blue-600"><Eye className="w-3.5 h-3.5" /> {a.reach} seen</span>}
+                          {a.status === 'Sent' && <span className="flex items-center gap-1.5 text-blue-600"><Eye className="w-3.5 h-3.5" /> {a.seenBy?.length || 0} seen</span>}
                         </div>
                         <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
                           <button onClick={() => handleCopyClick(a)} className="p-1.5 text-slate-400 hover:text-blue-600 rounded-lg" title="Duplicate"><Copy className="w-4 h-4" /></button>

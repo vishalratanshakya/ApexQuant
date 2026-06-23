@@ -5,7 +5,7 @@ import { useAuth } from '@/providers/AuthProvider';
 import Link from 'next/link';
 import { useState, useRef, useEffect } from 'react';
 import { db } from '@/lib/firebase';
-import { collection, onSnapshot, query, where } from 'firebase/firestore';
+import { collection, onSnapshot, query, where, updateDoc, doc, arrayUnion } from 'firebase/firestore';
 import { signOut } from '@/lib/auth';
 import { toast } from 'react-hot-toast';
 import { useRouter } from 'next/navigation';
@@ -148,6 +148,14 @@ export default function Header({ onMenuClick }: { onMenuClick?: () => void }) {
           <div className="relative" ref={notifRef}>
             <button 
               onClick={() => {
+                if (!notificationsOpen) {
+                  // Mark all unread announcements as seen when dropdown is opened
+                  unreadAnnouncements.forEach(a => {
+                    if ((a.type === 'announcement' || a.status === 'Sent') && !a.id.startsWith('mock')) {
+                      updateDoc(doc(db, 'announcements', a.id), { seenBy: arrayUnion(user?.uid) }).catch(console.error);
+                    }
+                  });
+                }
                 setNotificationsOpen(!notificationsOpen);
                 setDropdownOpen(false);
               }}
