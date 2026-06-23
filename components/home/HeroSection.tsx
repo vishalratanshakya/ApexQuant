@@ -57,12 +57,12 @@ function TickerTape() {
     <div className="ticker-wrap pt-20 border-b border-border bg-white/80 backdrop-blur-md py-2">
       <div className="ticker-inner">
         {[...tickerItems, ...tickerItems, ...tickerItems, ...tickerItems].map((item, i) => (
-          <span key={i} className="inline-flex items-center gap-2 px-6 text-xs w-fit">
+          <span key={i} className="inline-flex items-center gap-2 px-4 sm:px-6 text-xs w-fit whitespace-nowrap shrink-0">
             <span className="font-semibold text-slate-500 min-w-[85px]">{item.symbol}</span>
-            <span className="text-text font-medium w-[80px] tabular-nums text-right">
+            <span className="text-text font-medium min-w-[75px] tabular-nums text-right">
               {item.price.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
             </span>
-            <span className={`px-1.5 py-0.5 rounded-sm w-[65px] text-center tabular-nums ${item.up ? 'bg-success/10 text-success' : 'bg-loss/10 text-loss'}`}>
+            <span className={`px-2 py-0.5 rounded-sm min-w-[70px] text-center tabular-nums ${item.up ? 'bg-success/10 text-success' : 'bg-loss/10 text-loss'}`}>
               {item.up ? '+' : ''}{item.change.toFixed(2)}%
             </span>
             <span className="text-slate-350 ml-2">|</span>
@@ -125,7 +125,7 @@ export default function HeroSection() {
             {/* Headline */}
             <motion.h1
               variants={itemVariants}
-              className="font-display font-black text-4xl sm:text-5xl lg:text-6xl xl:text-7xl leading-[1.08] tracking-tight text-text mb-6"
+              className="font-display font-black text-4xl sm:text-5xl lg:text-5xl xl:text-7xl leading-[1.08] tracking-tight text-text mb-6"
             >
               Build, Backtest{' '}
               <span className="gradient-text">&amp; Deploy</span>

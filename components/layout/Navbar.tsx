@@ -52,7 +52,7 @@ export default function Navbar() {
             </Link>
 
             {/* Desktop Nav Links */}
-            <nav className="hidden md:flex items-center gap-8">
+            <nav className="hidden lg:flex items-center gap-4 xl:gap-8">
               {navLinks.map((link) => (
                 <Link
                   key={link.href}
@@ -66,7 +66,7 @@ export default function Navbar() {
             </nav>
 
             {/* Desktop CTA Buttons */}
-            <div className="hidden md:flex items-center gap-3">
+            <div className="hidden lg:flex items-center gap-2 xl:gap-3">
               {!user ? (
                 <>
                   <Link
@@ -98,7 +98,7 @@ export default function Navbar() {
             <button
               id="mobile-menu-btn"
               onClick={() => setMobileOpen(!mobileOpen)}
-              className="md:hidden p-2 rounded-lg text-slate-500 hover:text-text hover:bg-slate-100 transition-colors"
+              className="lg:hidden p-2 rounded-lg text-slate-500 hover:text-text hover:bg-slate-100 transition-colors"
               aria-label="Toggle menu"
             >
               {mobileOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
@@ -116,7 +116,7 @@ export default function Navbar() {
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -20 }}
             transition={{ duration: 0.2 }}
-            className="fixed top-16 left-0 right-0 z-40 bg-white/95 border-b border-border shadow-lg md:hidden"
+            className="fixed top-16 left-0 right-0 z-40 bg-white/95 border-b border-border shadow-lg lg:hidden"
           >
             <div className="max-w-7xl mx-auto px-4 py-6 flex flex-col gap-4">
               {navLinks.map((link) => (
