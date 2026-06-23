@@ -3,7 +3,41 @@
 import { Activity, Download, Play, ShieldAlert, ArrowUpRight, ArrowDownRight } from 'lucide-react';
 import Link from 'next/link';
 
+import { useEffect, useState } from 'react';
+import { useAuth } from '@/hooks/useAuth';
+import { getBacktestById, BacktestData } from '@/lib/db';
+import dynamic from 'next/dynamic';
+
+const TradingViewChart = dynamic(() => import('@/components/dashboard/TradingViewChart'), { ssr: false });
+
 export default function BacktestReportPage({ params }: { params: { id: string } }) {
+  const { user } = useAuth();
+  const [backtest, setBacktest] = useState<BacktestData | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    if (user) {
+      getBacktestById(user.uid, params.id).then(data => {
+        setBacktest(data);
+        setLoading(false);
+      });
+    }
+  }, [user, params.id]);
+
+  // Mock data for charts
+  const equityData = Array.from({ length: 60 }, (_, i) => ({
+    time: new Date(Date.now() - (60 - i) * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+    value: 100000 + i * 500 + (Math.random() - 0.5) * 2000
+  }));
+
+  const drawdownData = Array.from({ length: 60 }, (_, i) => ({
+    time: new Date(Date.now() - (60 - i) * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+    value: - (Math.random() * 5 + 1)
+  }));
+
+  if (loading) {
+    return <div className="p-12 text-center text-slate-500">Loading Report...</div>;
+  }
   return (
     <div className="space-y-6 animate-in fade-in duration-500">
       {/* Header */}
@@ -15,7 +49,7 @@ export default function BacktestReportPage({ params }: { params: { id: string } 
             <span className="text-sm font-semibold text-text">Report #{params.id}</span>
           </div>
           <h1 className="text-2xl font-bold text-text font-display flex items-center gap-3">
-            NIFTY Breakout Pro
+            {backtest?.strategyName || 'Unknown Strategy'}
             <span className="px-2.5 py-1 rounded-md bg-success/10 text-success text-[10px] font-bold uppercase tracking-wider">High Profitability</span>
           </h1>
         </div>
@@ -53,14 +87,14 @@ export default function BacktestReportPage({ params }: { params: { id: string } 
       <div className="grid lg:grid-cols-3 gap-6">
         <div className="lg:col-span-2 glass-card rounded-xl border border-border p-6 bg-white min-h-[400px] flex flex-col">
           <h2 className="text-base font-bold text-text mb-6">Equity Curve</h2>
-          <div className="flex-1 border-2 border-dashed border-slate-200 rounded-xl bg-slate-50/50 flex items-center justify-center">
-            <p className="text-sm text-slate-400 font-medium">Chart visualization here</p>
+          <div className="flex-1 w-full h-full relative">
+            <TradingViewChart data={equityData} lineColor="#3b82f6" topColor="rgba(59, 130, 246, 0.2)" />
           </div>
         </div>
         <div className="glass-card rounded-xl border border-border p-6 bg-white min-h-[400px] flex flex-col">
-          <h2 className="text-base font-bold text-text mb-6">Drawdown Profile</h2>
-          <div className="flex-1 border-2 border-dashed border-slate-200 rounded-xl bg-slate-50/50 flex items-center justify-center">
-            <p className="text-sm text-slate-400 font-medium">Drawdown chart here</p>
+          <h2 className="text-base font-bold text-text mb-6">Drawdown Profile (%)</h2>
+          <div className="flex-1 w-full h-full relative">
+            <TradingViewChart data={drawdownData} lineColor="#ef4444" topColor="rgba(239, 68, 68, 0.2)" />
           </div>
         </div>
       </div>

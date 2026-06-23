@@ -3,7 +3,15 @@
 import { useEffect, useRef } from 'react';
 import { createChart, ColorType } from 'lightweight-charts';
 
-export default function TradingViewChart({ data }: { data: { time: string; value: number }[] }) {
+export default function TradingViewChart({ 
+  data, 
+  lineColor = '#3b82f6', 
+  topColor = 'rgba(59, 130, 246, 0.4)' 
+}: { 
+  data: { time: string; value: number }[],
+  lineColor?: string,
+  topColor?: string
+}) {
   const chartContainerRef = useRef<HTMLDivElement>(null);
   const chartRef = useRef<any>(null);
 
@@ -34,8 +42,8 @@ export default function TradingViewChart({ data }: { data: { time: string; value
     chartRef.current = chart;
 
     const areaSeries = chart.addAreaSeries({
-      lineColor: '#3b82f6',
-      topColor: 'rgba(59, 130, 246, 0.4)',
+      lineColor: lineColor,
+      topColor: topColor,
       bottomColor: 'rgba(59, 130, 246, 0.0)',
       lineWidth: 2,
     });
