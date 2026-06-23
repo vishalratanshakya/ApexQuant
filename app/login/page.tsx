@@ -130,14 +130,15 @@ export default function LoginPage() {
 
       {/* ── Left Panel (visible on large screens) ── */}
       <div className="hidden lg:flex flex-col justify-between w-[45%] p-12 relative z-10">
-        {/* Logo */}
-        <Link href="/" className="flex items-center gap-2.5">
-          <img src="/logo.png" alt="ApexQuant" className="h-20 w-auto" />
-        </Link>
+        <div>
+          {/* Logo */}
+          <Link href="/" className="flex items-center gap-2.5 mb-12">
+            <img src="/logo.png" alt="ApexQuant" className="h-40 w-auto -ml-4" />
+          </Link>
 
-        {/* Headline */}
-        <div className="max-w-md">
-          <motion.div
+          {/* Headline */}
+          <div className="max-w-md">
+            <motion.div
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.7, delay: 0.2 }}
@@ -208,7 +209,7 @@ export default function LoginPage() {
           {/* Mobile Logo */}
           <div className="flex justify-center mb-8 lg:hidden">
             <Link href="/" className="flex items-center gap-2">
-              <img src="/logo.png" alt="ApexQuant" className="h-16 w-auto" />
+              <img src="/logo.png" alt="ApexQuant" className="h-20 w-auto" />
             </Link>
           </div>
 

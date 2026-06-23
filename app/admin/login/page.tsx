@@ -89,7 +89,7 @@ export default function AdminLoginPage() {
       <div className="w-full max-w-md bg-white border border-slate-200 rounded-3xl p-8 relative z-10 shadow-xl shadow-slate-200/50 animate-in fade-in zoom-in-95 duration-500">
         
         <div className="text-center mb-8">
-          <img src="/logo.png" alt="ApexQuant" className="h-24 w-auto mx-auto mb-4" />
+          <img src="/logo.png" alt="ApexQuant" className="h-32 w-auto mx-auto mb-4" />
           <h1 className="text-2xl font-bold text-slate-800 font-display mb-2 mt-2">Admin Portal</h1>
           <div className="flex items-center justify-center gap-2 text-slate-500 text-sm font-medium">
             <ShieldAlert className="w-4 h-4 text-red-500" /> Restricted Access
