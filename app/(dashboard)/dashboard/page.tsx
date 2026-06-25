@@ -148,7 +148,7 @@ export default function DashboardPage() {
                       </td>
                       <td className="px-5 py-4 text-right">
                         <div className="flex items-center justify-end gap-3">
-                          <Link href={`/builder?id=${s.id}`} className="text-xs font-semibold text-slate-500 hover:text-primary transition-colors">
+                          <Link href={`/strategy-builder?id=${s.id}`} className="text-xs font-semibold text-slate-500 hover:text-primary transition-colors">
                             Edit
                           </Link>
                         </div>

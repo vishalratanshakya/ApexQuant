@@ -41,7 +41,7 @@ export default function StrategiesPage() {
           </PlanGuard>
         ) : (
           <Link 
-            href="/builder"
+            href="/strategy-builder"
             className="inline-flex items-center justify-center gap-2 px-6 py-3 rounded-xl text-sm font-bold text-white btn-primary shadow-lg shadow-primary/25 hover:shadow-primary/40 transition-all w-full sm:w-auto"
           >
             <Plus className="w-5 h-5" />
@@ -63,7 +63,7 @@ export default function StrategiesPage() {
           <h3 className="text-xl font-bold text-slate-900 mb-2">No strategies yet</h3>
           <p className="text-slate-500 mb-6 max-w-md">You haven't created any trading strategies yet. Head over to the Strategy Builder to create your first algorithmic strategy without writing a single line of code.</p>
           <Link 
-            href="/builder"
+            href="/strategy-builder"
             className="inline-flex items-center gap-2 px-6 py-2.5 rounded-xl text-sm font-bold text-primary bg-primary/10 hover:bg-primary/20 transition-all"
           >
             <Plus className="w-4 h-4" />
@@ -123,7 +123,7 @@ export default function StrategiesPage() {
                     <td className="px-6 py-4 text-right">
                       <div className="flex items-center justify-end gap-2 transition-opacity">
                         <Link 
-                          href={`/builder`}
+                          href={`/strategy-builder`}
                           className="p-2 text-slate-400 hover:text-primary hover:bg-primary/10 rounded-lg transition-colors"
                           title="Open in Builder"
                         >

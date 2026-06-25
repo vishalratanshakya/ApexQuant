@@ -59,7 +59,7 @@ export default function LiveStrategiesPage() {
           </div>
           <h3 className="font-bold text-text mb-2">Deploy a new strategy</h3>
           <p className="text-sm text-slate-500 mb-6">You have capacity for 4 more live strategies on your Pro plan.</p>
-          <Link href="/builder" className="btn-primary px-4 py-2 rounded-xl text-sm font-semibold text-white">
+          <Link href="/strategy-builder" className="btn-primary px-4 py-2 rounded-xl text-sm font-semibold text-white">
             Go to Builder
           </Link>
         </div>

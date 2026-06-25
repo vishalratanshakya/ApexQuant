@@ -6,7 +6,7 @@ export default function Step5Success() {
   const router = useRouter();
 
   const handleFinish = () => {
-    router.push('/builder');
+    router.push('/strategy-builder');
   };
 
   return (

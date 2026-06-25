@@ -81,7 +81,7 @@ export default function SymbolAnalysisPage({ params }: { params: { symbol: strin
             {inWatchlist ? <Check className="w-4 h-4" /> : <Activity className="w-4 h-4" />}
             {inWatchlist ? 'Added to Watchlist' : 'Add to Watchlist'}
           </button>
-          <Link href={`/builder?symbol=${symbol}`} className="inline-flex items-center justify-center gap-2 px-6 py-2.5 rounded-xl text-sm font-bold text-white btn-primary shadow-lg shadow-primary/25 hover:shadow-primary/40 transition-all">
+          <Link href={`/strategy-builder?symbol=${symbol}`} className="inline-flex items-center justify-center gap-2 px-6 py-2.5 rounded-xl text-sm font-bold text-white btn-primary shadow-lg shadow-primary/25 hover:shadow-primary/40 transition-all">
             <Settings className="w-4 h-4" /> Create Strategy
           </Link>
         </div>
@@ -206,7 +206,7 @@ export default function SymbolAnalysisPage({ params }: { params: { symbol: strin
               <p className="text-slate-300 text-xs leading-relaxed mb-6">
                 Turn this exact market condition into a fully automated trading bot using our visual strategy builder. No coding required.
               </p>
-              <Link href={`/builder?symbol=${symbol}`} className="block w-full py-2.5 bg-white text-slate-900 text-center rounded-xl text-sm font-bold hover:bg-slate-50 transition-colors shadow-sm">
+              <Link href={`/strategy-builder?symbol=${symbol}`} className="block w-full py-2.5 bg-white text-slate-900 text-center rounded-xl text-sm font-bold hover:bg-slate-50 transition-colors shadow-sm">
                 Open Strategy Builder
               </Link>
             </div>

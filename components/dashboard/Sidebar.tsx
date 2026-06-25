@@ -8,7 +8,7 @@ import { toast } from 'react-hot-toast';
 const navItems = [
   { name: 'Overview', href: '/dashboard', icon: LayoutDashboard },
   { name: 'My Strategies', href: '/strategies', icon: Layers },
-  { name: 'Strategy Builder', href: '/builder', icon: Workflow },
+  { name: 'Strategy Builder', href: '/strategy-builder', icon: Workflow },
   { name: 'Market Scanner', href: '/scanner', icon: ScanEye },
   { name: 'Backtests', href: '/backtest', icon: FlaskConical },
   { name: 'Live Deployments', href: '/live', icon: Activity },
