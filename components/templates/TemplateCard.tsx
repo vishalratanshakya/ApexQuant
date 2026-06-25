@@ -2,6 +2,18 @@
 
 import React, { useEffect, useRef } from 'react';
 import { StrategyTemplate } from '@/lib/mockTemplates';
+
+const generateFallbackCurve = (isPositive: boolean) => {
+  let val = 100000;
+  const trend = isPositive ? 200 : -200;
+  return Array.from({ length: 30 }).map((_, i) => {
+    val += (Math.random() - 0.5) * 1500 + trend;
+    return {
+      time: `2023-09-${(i + 1).toString().padStart(2, '0')}`,
+      value: val
+    };
+  });
+};
 import { createChart, ColorType } from 'lightweight-charts';
 import { TrendingUp, Activity, BarChart2, Star, Eye } from 'lucide-react';
 
@@ -49,7 +61,16 @@ export function TemplateCard({ template, onPreview, onUseTemplate }: TemplateCar
       lineWidth: 2,
     });
 
-    areaSeries.setData(template.equityCurve);
+    const data = (template.equityCurve && template.equityCurve.length > 0) 
+      ? template.equityCurve 
+      : generateFallbackCurve(isPositive);
+    
+    try {
+      areaSeries.setData(data);
+    } catch (e) {
+      console.error("Error setting chart data:", e);
+    }
+    
     chart.timeScale().fitContent();
 
     const resizeObserver = new ResizeObserver(entries => {

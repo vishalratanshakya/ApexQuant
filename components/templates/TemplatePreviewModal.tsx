@@ -6,6 +6,18 @@ import { createChart, ColorType } from 'lightweight-charts';
 import { X, TrendingUp, Activity, Copy, Clock, AlertTriangle, ShieldCheck } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
+const generateFallbackCurve = (isPositive: boolean) => {
+  let val = 100000;
+  const trend = isPositive ? 200 : -200;
+  return Array.from({ length: 30 }).map((_, i) => {
+    val += (Math.random() - 0.5) * 1500 + trend;
+    return {
+      time: `2023-09-${(i + 1).toString().padStart(2, '0')}`,
+      value: val
+    };
+  });
+};
+
 interface TemplatePreviewModalProps {
   template: StrategyTemplate | null;
   onClose: () => void;
@@ -43,7 +55,16 @@ export function TemplatePreviewModal({ template, onClose, onUseTemplate }: Templ
       lineWidth: 2,
     });
 
-    areaSeries.setData(template.equityCurve);
+    const data = (template.equityCurve && template.equityCurve.length > 0) 
+      ? template.equityCurve 
+      : generateFallbackCurve(isPositive);
+    
+    try {
+      areaSeries.setData(data);
+    } catch (e) {
+      console.error("Error setting chart data:", e);
+    }
+    
     chart.timeScale().fitContent();
 
     const resizeObserver = new ResizeObserver(entries => {
